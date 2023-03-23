@@ -6,7 +6,6 @@ import swaggerUi from 'swagger-ui-express';
 import { ValidateError } from 'tsoa';
 import fs from 'fs/promises';
 import { Server as SocketServer } from 'socket.io';
-import { MongoClient, ServerApiVersion } from 'mongodb';
 import { RegisterRoutes } from '../generated/routes';
 import TownsStore from './lib/TownsStore';
 import { ClientToServerEvents, ServerToClientEvents } from './types/CoveyTownSocket';
@@ -76,18 +75,3 @@ server.listen(process.env.PORT || 8081, () => {
     TownsStore.getInstance().createTown(process.env.DEMO_TOWN_ID, false);
   }
 });
-
-const URI =
-  'mongodb+srv://mikeymundia:HiWcqPuJthaxp8Ct@convey-town.hjgrpb3.mongodb.net/?retryWrites=true&w=majority';
-const client = new MongoClient(URI);
-
-async function connectToDatabase() {
-  try {
-    await client.connect();
-    console.log('Connected to MongoDB');
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-connectToDatabase();
