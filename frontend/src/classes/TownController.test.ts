@@ -43,6 +43,7 @@ describe('TownController', () => {
   let mockLoginController: MockProxy<LoginController>;
   let userName: string;
   let townID: string;
+  let accessToken: string;
   beforeAll(() => {
     mockLoginController = mock<LoginController>();
     process.env.REACT_APP_TOWNS_SERVICE_URL = 'test';
@@ -86,7 +87,13 @@ describe('TownController', () => {
     mockClear(mockSocket);
     userName = nanoid();
     townID = nanoid();
-    testController = new TownController({ userName, townID, loginController: mockLoginController });
+    accessToken = nanoid();
+    testController = new TownController({
+      userName,
+      townID,
+      loginController: mockLoginController,
+      accessToken,
+    });
   });
   describe('With an unsuccesful connection', () => {
     it('Throws an error', async () => {
