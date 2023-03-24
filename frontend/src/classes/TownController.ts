@@ -30,6 +30,7 @@ export type ConnectionProperties = {
   userName: string;
   townID: string;
   loginController: LoginController;
+  accessToken: string | null;
 };
 
 /**
@@ -129,6 +130,11 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   private _loginController: LoginController;
 
   /**
+   * The Spotify access token for the user.
+   */
+  private _spotifyAccessToken: string | null;
+
+  /**
    * The current list of players in the town. Adding or removing players might replace the array
    * with a new one; clients should take note not to retain stale references.
    */
@@ -200,11 +206,12 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
   private _posterSessionAreas: PosterSessionAreaController[] = [];
 
-  public constructor({ userName, townID, loginController }: ConnectionProperties) {
+  public constructor({ userName, townID, loginController, accessToken }: ConnectionProperties) {
     super();
     this._townID = townID;
     this._userName = userName;
     this._loginController = loginController;
+    this._spotifyAccessToken = accessToken;
 
     /*
         The event emitter will show a warning if more than this number of listeners are registered, as it

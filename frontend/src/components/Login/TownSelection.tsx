@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import assert from 'assert';
 import {
   Box,
@@ -8,12 +8,15 @@ import {
   FormControl,
   FormLabel,
   Heading,
+  Image,
   Input,
+  Link,
   Stack,
   Table,
   TableCaption,
   Tbody,
   Td,
+  Text,
   Th,
   Thead,
   Tr,
@@ -23,6 +26,12 @@ import { Town } from '../../generated/client';
 import useLoginController from '../../hooks/useLoginController';
 import TownController from '../../classes/TownController';
 import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
+import { SpotifyWebApi } from 'spotify-web-api-ts';
+import { PrivateUser } from 'spotify-web-api-ts/types/types/SpotifyObjects';
+
+const SPOTIFY_CLIENT_ID = '6c3a5f706c5b443ca47c478c8836bd82';
+const SPOTIFY_REDIRECT_URI = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
+const { SPOTIFY_CLIENT_SECRET } = process.env;
 
 export default function TownSelection(): JSX.Element {
   const [userName, setUserName] = useState<string>('');
@@ -30,11 +39,64 @@ export default function TownSelection(): JSX.Element {
   const [newTownIsPublic, setNewTownIsPublic] = useState<boolean>(true);
   const [townIDToJoin, setTownIDToJoin] = useState<string>('');
   const [currentPublicTowns, setCurrentPublicTowns] = useState<Town[]>();
+  const [accessToken, setAccessToken] = useState<string>('');
+  const [spotifyData, setSpotifyData] = useState<PrivateUser>();
   const loginController = useLoginController();
   const { setTownController, townsService } = loginController;
   const { connect: videoConnect } = useVideoContext();
 
   const toast = useToast();
+
+  // Creates an instance of the SpotifyWebApi which will be stored
+  const spotifyApi = useMemo(
+    () =>
+      new SpotifyWebApi({
+        clientId: SPOTIFY_CLIENT_ID,
+        clientSecret: SPOTIFY_CLIENT_SECRET,
+        redirectUri: SPOTIFY_REDIRECT_URI,
+      }),
+    [],
+  );
+
+  // Permissions needed for Spotify API requests
+  const spotifyAuthURL = spotifyApi.getTemporaryAuthorizationUrl({
+    scope: [
+      'user-read-playback-state',
+      'user-modify-playback-state',
+      'user-read-currently-playing',
+      'user-read-private',
+      'user-top-read',
+      'playlist-read-collaborative',
+      'playlist-modify-public',
+    ],
+  });
+
+  function parseAccessToken(hash: string): string | null {
+    return new URLSearchParams(hash.substring(1)).get('access_token');
+  }
+
+  // Updates the Spotify accessToken if changes occur
+  useEffect(() => {
+    if (!accessToken && window.location.hash !== '') {
+      const token = parseAccessToken(window.location.hash);
+      if (token && token !== accessToken) {
+        setAccessToken(token);
+      }
+    }
+  }, [accessToken]);
+
+  // Retrieves data from the Spotify API /me endpoint relating to the user
+  const getSpotifyAccount = useCallback(async () => {
+    if (accessToken) {
+      spotifyApi.setAccessToken(accessToken);
+      try {
+        const data = await spotifyApi.users.getMe();
+        setSpotifyData(data);
+      } catch (error) {
+        return error;
+      }
+    }
+  }, [accessToken, spotifyApi]);
 
   const updateTownListings = useCallback(() => {
     townsService.listTowns().then(towns => {
@@ -43,11 +105,12 @@ export default function TownSelection(): JSX.Element {
   }, [setCurrentPublicTowns, townsService]);
   useEffect(() => {
     updateTownListings();
+    getSpotifyAccount();
     const timer = setInterval(updateTownListings, 2000);
     return () => {
       clearInterval(timer);
     };
-  }, [updateTownListings]);
+  }, [updateTownListings, getSpotifyAccount]);
 
   const handleJoin = useCallback(
     async (coveyRoomID: string) => {
@@ -72,6 +135,7 @@ export default function TownSelection(): JSX.Element {
           userName,
           townID: coveyRoomID,
           loginController,
+          accessToken,
         });
         await newController.connect();
         const videoToken = newController.providerVideoToken;
@@ -94,7 +158,7 @@ export default function TownSelection(): JSX.Element {
         }
       }
     },
-    [setTownController, userName, toast, videoConnect, loginController],
+    [setTownController, userName, toast, videoConnect, loginController, accessToken],
   );
 
   const handleCreate = async () => {
@@ -165,6 +229,29 @@ export default function TownSelection(): JSX.Element {
     <>
       <form>
         <Stack>
+          <Box p='4' borderWidth='1px' borderRadius='lg'>
+            <Heading as='h2' size='lg'>
+              Spotify Account
+            </Heading>
+            {accessToken ? (
+              <Flex justifyContent='center' alignItems='center'>
+                <Text flex='1' noOfLines={2}>
+                  Connected to Spotify account: {spotifyData?.id}
+                </Text>
+                <Image
+                  borderRadius='full'
+                  width={'25%'}
+                  src={spotifyData?.images[0].url}
+                  alt='Spotify pic'
+                  fallbackSrc='https://via.placeholder.com/150'
+                />
+              </Flex>
+            ) : (
+              <Link href={spotifyAuthURL}>
+                <Button>Connect to Spotify</Button>
+              </Link>
+            )}
+          </Box>
           <Box p='4' borderWidth='1px' borderRadius='lg'>
             <Heading as='h2' size='lg'>
               Select a username
