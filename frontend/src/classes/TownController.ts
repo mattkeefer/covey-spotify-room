@@ -745,7 +745,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    * @returns the spotify playlist that was created
    */
   public async createSpotifyPlaylist(): Promise<Playlist> {
-    const response = await this._spotifyApi.playlists.createPlaylist('mknexus8', this.townID, {
+    const response = await this._spotifyApi.playlists.createPlaylist('mknexus8', 'Covey Town', {
       public: true,
       collaborative: true,
     });
@@ -757,7 +757,6 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    */
   public async createNewPlaylistWithTopSongs() {
     const playlist = await this.createSpotifyPlaylist();
-    console.log(playlist);
     const tracks = await this.getSpotifyTopSongs();
     this.addTracksToPlaylist(tracks, playlist);
   }

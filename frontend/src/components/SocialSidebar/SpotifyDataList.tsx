@@ -1,4 +1,4 @@
-import { Box, Button, Heading, ListItem, OrderedList } from '@chakra-ui/react';
+import { Box, Heading, ListItem, OrderedList } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 import useTownController from '../../hooks/useTownController';
