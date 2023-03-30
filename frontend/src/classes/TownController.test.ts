@@ -1,5 +1,6 @@
 import { mock, mockClear, MockProxy } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
+import { SpotifyWebApi } from 'spotify-web-api-ts/types';
 import { LoginController } from '../contexts/LoginControllerContext';
 import { ViewingArea } from '../generated/client';
 import { PosterSessionArea } from '../generated/client';
@@ -43,7 +44,7 @@ describe('TownController', () => {
   let mockLoginController: MockProxy<LoginController>;
   let userName: string;
   let townID: string;
-  let accessToken: string;
+  let spotifyApi: SpotifyWebApi;
   beforeAll(() => {
     mockLoginController = mock<LoginController>();
     process.env.REACT_APP_TOWNS_SERVICE_URL = 'test';
@@ -87,12 +88,12 @@ describe('TownController', () => {
     mockClear(mockSocket);
     userName = nanoid();
     townID = nanoid();
-    accessToken = nanoid();
+    spotifyApi = new SpotifyWebApi();
     testController = new TownController({
       userName,
       townID,
       loginController: mockLoginController,
-      accessToken,
+      spotifyApi,
     });
   });
   describe('With an unsuccesful connection', () => {

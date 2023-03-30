@@ -135,7 +135,7 @@ export default function TownSelection(): JSX.Element {
           userName,
           townID: coveyRoomID,
           loginController,
-          accessToken,
+          spotifyApi,
         });
         await newController.connect();
         const videoToken = newController.providerVideoToken;
@@ -158,7 +158,7 @@ export default function TownSelection(): JSX.Element {
         }
       }
     },
-    [setTownController, userName, toast, videoConnect, loginController, accessToken],
+    [setTownController, userName, toast, videoConnect, loginController, spotifyApi],
   );
 
   const handleCreate = async () => {
