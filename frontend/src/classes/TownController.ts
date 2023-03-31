@@ -23,6 +23,9 @@ import ConversationAreaController from './ConversationAreaController';
 import PlayerController from './PlayerController';
 import ViewingAreaController from './ViewingAreaController';
 import PosterSessionAreaController from './PosterSessionAreaController';
+import { SpotifyWebApi } from 'spotify-web-api-ts/types';
+import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
+import axios from 'axios';
 
 const CALCULATE_NEARBY_PLAYERS_DELAY = 300;
 
@@ -30,7 +33,7 @@ export type ConnectionProperties = {
   userName: string;
   townID: string;
   loginController: LoginController;
-  accessToken: string | null;
+  spotifyApi: SpotifyWebApi;
 };
 
 /**
@@ -130,9 +133,9 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   private _loginController: LoginController;
 
   /**
-   * The Spotify access token for the user.
+   * The Spotify web api with the access token of the user.
    */
-  private _spotifyAccessToken: string | null;
+  private _spotifyApi: SpotifyWebApi;
 
   /**
    * The current list of players in the town. Adding or removing players might replace the array
@@ -206,12 +209,12 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
   private _posterSessionAreas: PosterSessionAreaController[] = [];
 
-  public constructor({ userName, townID, loginController, accessToken }: ConnectionProperties) {
+  public constructor({ userName, townID, loginController, spotifyApi }: ConnectionProperties) {
     super();
     this._townID = townID;
     this._userName = userName;
     this._loginController = loginController;
-    this._spotifyAccessToken = accessToken;
+    this._spotifyApi = spotifyApi;
 
     /*
         The event emitter will show a warning if more than this number of listeners are registered, as it
@@ -706,6 +709,56 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       posterSessionArea.id,
       this.sessionToken,
     );
+  }
+
+  /**
+   * Get top spotify tracks of player
+   * @returns a promise wrapping the array of top spotify tracks for the player
+   */
+  public async getSpotifyTopSongs(): Promise<Track[]> {
+    const accessToken = this._spotifyApi.getAccessToken();
+    const response = await axios.get(
+      'https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=5',
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+    return response.data.items;
+  }
+
+  /**
+   * Add spotify tracks to a playlist
+   * @param tracks the array of spotify tracks to be added
+   * @param playlist the spotify playlist id the tracks should be added to
+   */
+  public async addTracksToPlaylist(tracks: Track[], playlist: Playlist) {
+    this._spotifyApi.playlists.addItemsToPlaylist(
+      playlist.id,
+      tracks.map(track => track.uri),
+    );
+  }
+
+  /**
+   * Create a new spotify playlist on the host spotify
+   * @returns the spotify playlist that was created
+   */
+  public async createSpotifyPlaylist(): Promise<Playlist> {
+    const response = await this._spotifyApi.playlists.createPlaylist('mknexus8', 'Covey Town', {
+      public: true,
+      collaborative: true,
+    });
+    return response;
+  }
+
+  /**
+   * Create a new spotify playlist and add the player's top 5 spotify tracks
+   */
+  public async createNewPlaylistWithTopSongs() {
+    const playlist = await this.createSpotifyPlaylist();
+    const tracks = await this.getSpotifyTopSongs();
+    this.addTracksToPlaylist(tracks, playlist);
   }
 
   /**

@@ -13,6 +13,7 @@ import { mock, mockClear } from 'jest-mock-extended';
 import { BoundingBox, CoveyTownSocket } from '../../types/CoveyTownSocket';
 import { getEventListener, mockTownControllerConnection } from '../../TestUtils';
 import TownControllerContext from '../../contexts/TownControllerContext';
+import { SpotifyWebApi } from 'spotify-web-api-ts/types';
 
 /**
  * Mocks the socket-io client constructor such that it will always return the same
@@ -162,7 +163,7 @@ describe('ConversationAreasList', () => {
         userName: nanoid(),
         townID: nanoid(),
         loginController: mock<LoginController>(),
-        accessToken: nanoid(),
+        spotifyApi: new SpotifyWebApi(),
       });
       if (areasToRender === undefined) {
         areasToRender = areas;
