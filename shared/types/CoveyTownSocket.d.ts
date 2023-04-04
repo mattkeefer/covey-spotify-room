@@ -17,7 +17,7 @@ export type TownJoinResponse = {
   interactables: Interactable[];
 }
 
-export type Interactable = ViewingArea | ConversationArea | PosterSessionArea;
+export type Interactable = ViewingArea | ConversationArea | PosterSessionArea | SongArea;
 
 export type TownSettingsUpdate = {
   friendlyName?: string;
@@ -32,6 +32,8 @@ export interface Player {
 };
 
 export type XY = { x: number, y: number };
+
+export type Comment = { username: string, commentText: string}
 
 export interface PlayerLocation {
   /* The CENTER x coordinate of this player's location */
@@ -76,6 +78,19 @@ export interface PosterSessionArea {
   imageContents?: string;
   title?: string;
 }
+
+import { SpotifyWebApi } from 'spotify-web-api-ts/types';
+import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
+
+export interface SongArea {
+  id: string;
+  curr_song?: Track;
+  comments?: Comment[];
+  like_count: number;
+  songs_playlist?: Playlist;
+  playlist_def?: string;
+}
+
 
 export interface ServerToClientEvents {
   playerMoved: (movedPlayer: Player) => void;
