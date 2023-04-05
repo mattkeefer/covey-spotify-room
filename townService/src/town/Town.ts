@@ -15,11 +15,13 @@ import {
   SocketData,
   ViewingArea as ViewingAreaModel,
   PosterSessionArea as PosterSessionAreaModel,
+  SongArea as SongAreaModel
 } from '../types/CoveyTownSocket';
 import ConversationArea from './ConversationArea';
 import InteractableArea from './InteractableArea';
 import ViewingArea from './ViewingArea';
 import PosterSessionArea from './PosterSessionArea';
+import SongArea from './SongArea';
 
 /**
  * The Town class implements the logic for each town: managing the various events that
@@ -347,6 +349,48 @@ export default class Town {
     return true;
   }
 
+  /**
+   * Creates a new song area in this town if there is not currently an active
+   * viewing area with the same ID. The song area ID must match the name of a
+   * song area that exists in this town's map, and the song area must not
+   * already have a playlist set.
+   *
+   * If successful creating the song area, this method:
+   *    Adds any players who are in the region defined by the song area to it
+   *    Notifies all players in the town that the song area has been updated by
+   *      emitting an interactableUpdate event
+   *
+   * @param songArea Information describing the song area to create.
+   *
+   * @returns True if the song area was created or false if there is no known
+   * song area with the specified ID or if there is already an active song area
+   * with the specified ID or if there is no playlist
+   */
+  public addSongArea(songArea: SongAreaModel): boolean {
+    // if there's no playlist or song specified
+    if (!songArea.songs_playlist || !songArea.curr_song) {
+      return false;
+    }
+    // find an existing song session area with the same ID
+    const existingSongArea = <SongArea>(
+      this._interactables.find(
+        area => area.id === songArea.id && area instanceof SongArea,
+      )
+    );
+    // if the id does not match an existing area, or if it does but the existing area
+    // already has an image and title
+    if (
+      !existingSongArea ||
+      (existingSongArea.getSongsPlaylist() && existingSongArea.getCurrentSong())
+    ) {
+      return false;
+    }
+    // we've reached here -- it's a valid update
+    existingSongArea.updateModel(songArea);
+    existingSongArea.addPlayersWithinBounds(this._players);
+    this._broadcastEmitter.emit('interactableUpdate', existingSongArea.toModel());
+    return true;
+  }
   /**
    * Fetch a player's session based on the provided session token. Returns undefined if the
    * session token is not valid.
