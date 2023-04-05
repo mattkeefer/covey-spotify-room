@@ -115,6 +115,14 @@ export default function TownSelection(): JSX.Element {
   const handleJoin = useCallback(
     async (coveyRoomID: string) => {
       try {
+        if (!spotifyData || !spotifyApi) {
+          toast({
+            title: 'Unable to join town',
+            description: 'Please connect to Spotify',
+            status: 'error',
+          });
+          return;
+        }
         if (!userName || userName.length === 0) {
           toast({
             title: 'Unable to join town',
@@ -158,10 +166,18 @@ export default function TownSelection(): JSX.Element {
         }
       }
     },
-    [setTownController, userName, toast, videoConnect, loginController, spotifyApi],
+    [spotifyData, spotifyApi, userName, loginController, videoConnect, setTownController, toast],
   );
 
   const handleCreate = async () => {
+    if (!spotifyData || !spotifyApi) {
+      toast({
+        title: 'Unable to create town',
+        description: 'Please connect to Spotify before creating a town',
+        status: 'error',
+      });
+      return;
+    }
     if (!userName || userName.length === 0) {
       toast({
         title: 'Unable to create town',
@@ -236,7 +252,7 @@ export default function TownSelection(): JSX.Element {
             {accessToken ? (
               <Flex justifyContent='center' alignItems='center'>
                 <Text flex='1' noOfLines={2}>
-                  Connected to Spotify account: {spotifyData?.id}
+                  Connected to Spotify account: {spotifyData?.display_name}
                 </Text>
                 <Image
                   borderRadius='full'
