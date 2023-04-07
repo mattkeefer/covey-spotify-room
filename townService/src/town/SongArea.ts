@@ -1,4 +1,6 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
+import { SpotifyWebApi } from 'spotify-web-api-ts/types';
+import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 import Player from '../lib/Player';
 import {
   BoundingBox,
@@ -7,41 +9,39 @@ import {
   SongArea as SongAreaModel,
 } from '../types/CoveyTownSocket';
 import InteractableArea from './InteractableArea';
-import { SpotifyWebApi } from 'spotify-web-api-ts/types';
-import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 
-export default class SongArea extends InteractableArea{
-    private _curr_song?: Track;
+export default class SongArea extends InteractableArea {
+  private _currentSong?: Track;
 
-    private _comments?: Comment[];
+  private _comments?: Comment[];
 
-    private _like_count: number;
+  private _likeCount: number;
 
-    private _songs_playlist?: Playlist;
-    
-    private _playlist_def?: string;
-  
-   public getCurrentSong(){
-       return this._curr_song;
-   }
+  private _songsPlaylist?: Playlist;
 
-   public getComments(){
-       return this._comments;
-   }
+  private _playlistDef?: string;
 
-   public getLikeCount(){
-       return this._like_count;
-   }
+  public getCurrentSong() {
+    return this._currentSong;
+  }
 
-   public getSongsPlaylist(){
-       return this._songs_playlist;
-   }
+  public getComments() {
+    return this._comments;
+  }
 
-   public getPlaylistDescription(){
-       return this._playlist_def;
-   }
+  public getLikeCount() {
+    return this._likeCount;
+  }
 
-    /**
+  public getSongsPlaylist() {
+    return this._songsPlaylist;
+  }
+
+  public getPlaylistDescription() {
+    return this._playlistDef;
+  }
+
+  /**
    * Creates a new SongArea
    *
    * @param viewingArea model containing this area's starting state
@@ -49,16 +49,16 @@ export default class SongArea extends InteractableArea{
    * @param townEmitter a broadcast emitter that can be used to emit updates to players
    */
   public constructor(
-    {id, curr_song, comments, like_count, songs_playlist, playlist_def }: SongAreaModel,
+    { id, curr_song, comments, like_count, songs_playlist, playlist_def }: SongAreaModel,
     coordinates: BoundingBox,
     townEmitter: TownEmitter,
   ) {
     super(id, coordinates, townEmitter);
-    this._curr_song = curr_song;
+    this._currentSong = curr_song;
     this._comments = comments;
-    this._like_count = like_count;
-    this._songs_playlist = songs_playlist;
-    this._playlist_def = playlist_def;
+    this._likeCount = like_count;
+    this._songsPlaylist = songs_playlist;
+    this._playlistDef = playlist_def;
   }
 
   /**
@@ -67,11 +67,11 @@ export default class SongArea extends InteractableArea{
    * @param posterSessionArea updated model
    */
   public updateModel(updatedModel: SongAreaModel) {
-    this._curr_song = updatedModel.curr_song;
+    this._currentSong = updatedModel.curr_song;
     this._comments = updatedModel.comments;
-    this._like_count = updatedModel.like_count;
-    this._songs_playlist = updatedModel.songs_playlist;
-    this._playlist_def = updatedModel.playlist_def;
+    this._likeCount = updatedModel.like_count;
+    this._songsPlaylist = updatedModel.songs_playlist;
+    this._playlistDef = updatedModel.playlist_def;
   }
 
   /**
@@ -81,15 +81,15 @@ export default class SongArea extends InteractableArea{
   public toModel(): SongAreaModel {
     return {
       id: this.id,
-      curr_song: this._curr_song,
+      curr_song: this._currentSong,
       comments: this._comments,
-      like_count: this._like_count,
-      songs_playlist: this._songs_playlist,
-      playlist_def: this._playlist_def
+      like_count: this._likeCount,
+      songs_playlist: this._songsPlaylist,
+      playlist_def: this._playlistDef,
     };
   }
 
-   /**
+  /**
    * Removes a player from this viewing area.
    *
    * When the last player leaves, this method clears the video of this area and
@@ -100,26 +100,22 @@ export default class SongArea extends InteractableArea{
   public remove(player: Player): void {
     super.remove(player);
     if (this._occupants.length === 0) {
-        this._curr_song = undefined;
-        this._comments = undefined;
-        this._like_count = 0;
-        this._songs_playlist = undefined;
-        this._playlist_def = undefined;
+      this._currentSong = undefined;
+      this._comments = undefined;
+      this._likeCount = 0;
+      this._songsPlaylist = undefined;
+      this._playlistDef = undefined;
       this._emitAreaChanged();
     }
   }
 
-
-/**
+  /**
    * Creates a new SongArea object that will represent a SongArea object in the town map.
    * @param mapObject An ITiledMapObject that represents a rectangle in which this viewing area exists
    * @param townEmitter An emitter that can be used by this viewing area to broadcast updates to players in the town
    * @returns
    */
-  public static fromMapObject(
-    mapObject: ITiledMapObject,
-    townEmitter: TownEmitter,
-  ): SongArea {
+  public static fromMapObject(mapObject: ITiledMapObject, townEmitter: TownEmitter): SongArea {
     if (!mapObject.width || !mapObject.height) {
       throw new Error('missing width/height for map object');
     }
@@ -130,10 +126,15 @@ export default class SongArea extends InteractableArea{
       height: mapObject.height,
     };
     return new SongArea(
-      { id: mapObject.name, curr_song: undefined, comments: undefined, like_count : 0, songs_playlist : undefined },
+      {
+        id: mapObject.name,
+        curr_song: undefined,
+        comments: undefined,
+        like_count: 0,
+        songs_playlist: undefined,
+      },
       box,
       townEmitter,
     );
   }
-
 }
