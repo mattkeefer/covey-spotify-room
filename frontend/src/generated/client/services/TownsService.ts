@@ -8,7 +8,7 @@ import type { TownCreateParams } from '../models/TownCreateParams';
 import type { TownCreateResponse } from '../models/TownCreateResponse';
 import type { TownSettingsUpdate } from '../models/TownSettingsUpdate';
 import type { ViewingArea } from '../models/ViewingArea';
-
+import type { SongArea } from '../models/SongArea';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 
@@ -192,6 +192,37 @@ requestBody: PosterSessionArea,
             },
         });
     }
+
+        /**
+     * Creates a song area in a given town
+     * @param townId ID of the town in which to create the new poster session area
+     * @param xSessionToken session token of the player making the request, must
+ * match the session token returned when the player joined the town
+     * @param requestBody The new poster session area to create
+     * @returns void 
+     * @throws ApiError
+     */
+         public createSongArea(
+            townId: string,
+            xSessionToken: string,
+            requestBody: SongArea,
+            ): CancelablePromise<void> {
+                    return this.httpRequest.request({
+                        method: 'POST',
+                        url: '/towns/{townID}/songArea',
+                        path: {
+                            'townID': townId,
+                        },
+                        headers: {
+                            'X-Session-Token': xSessionToken,
+                        },
+                        body: requestBody,
+                        mediaType: 'application/json',
+                        errors: {
+                            400: `Invalid values specified`,
+                        },
+                    });
+                }
 
     /**
      * Gets the image contents of a given poster session area in a given town

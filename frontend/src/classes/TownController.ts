@@ -6,6 +6,7 @@ import { io } from 'socket.io-client';
 import TypedEmitter from 'typed-emitter';
 import Interactable from '../components/Town/Interactable';
 import ViewingArea from '../components/Town/interactables/ViewingArea';
+import SongArea from '../components/Town/interactables/SongArea';
 import PosterSesssionArea from '../components/Town/interactables/PosterSessionArea';
 import { LoginController } from '../contexts/LoginControllerContext';
 import { TownsService, TownsServiceClient } from '../generated/client';
@@ -17,9 +18,11 @@ import {
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
   PosterSessionArea as PosterSessionAreaModel,
+  SongArea as SongAreaModel,
 } from '../types/CoveyTownSocket';
-import { isConversationArea, isViewingArea, isPosterSessionArea } from '../types/TypeUtils';
+import { isConversationArea, isViewingArea, isPosterSessionArea, isSongArea } from '../types/TypeUtils';
 import ConversationAreaController from './ConversationAreaController';
+import SongAreaController from './SongAreaController';
 import PlayerController from './PlayerController';
 import ViewingAreaController from './ViewingAreaController';
 import PosterSessionAreaController from './PosterSessionAreaController';
@@ -71,6 +74,7 @@ export type TownEvents = {
    * after updating the town controller's record of conversation areas.
    */
   conversationAreasChanged: (currentConversationAreas: ConversationAreaController[]) => void;
+  songAreasChanged: (newSongAreas: SongAreaController[]) => void;
   /**
    * An event that indicates that the set of viewing areas has changed. This event is emitted after updating
    * the town controller's record of viewing areas.
@@ -209,6 +213,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
   private _posterSessionAreas: PosterSessionAreaController[] = [];
 
+  private _songAreas: SongAreaController[] = [];
+
   public constructor({ userName, townID, loginController, spotifyApi }: ConnectionProperties) {
     super();
     this._townID = townID;
@@ -318,6 +324,15 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
   public get interactableEmitter() {
     return this._interactableEmitter;
+  }
+
+  public get songAreas() {
+    return this._songAreas;
+  }
+
+  public set songAreas(newSongAreas: SongAreaController[]) {
+    this._songAreas = newSongAreas;
+    this.emit('songAreasChanged', newSongAreas);
   }
 
   public get viewingAreas() {
@@ -437,7 +452,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
      * a conversationAreasChagned event to listeners of this TownController.
      *
      * If the update changes properties of the interactable, the interactable is also expected to emit its own
-     * events (@see ViewingAreaController and @see ConversationAreaController and @see PosterSessionAreaController)
+     * events (@see ViewingAreaController and @see ConversationAreaController and @see SongAreaController and @see PosterSessionAreaController)
      */
     this._socket.on('interactableUpdate', interactable => {
       if (isConversationArea(interactable)) {
@@ -458,6 +473,11 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         }
       } else if (isPosterSessionArea(interactable)) {
         const relArea = this.posterSessionAreas.find(area => area.id == interactable.id);
+        if (relArea) {
+          relArea.updateFrom(interactable);
+        }
+      } else if (isSongArea(interactable)) {
+        const relArea = this.songAreas.find(area => area.id == interactable.id);
         if (relArea) {
           relArea.updateFrom(interactable);
         }
@@ -538,8 +558,19 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    *
    * @param newArea
    */
-  async createViewingArea(newArea: ViewingAreaModel) {
+   async createViewingArea(newArea: ViewingAreaModel) {
     await this._townsService.createViewingArea(this.townID, this.sessionToken, newArea);
+  }
+
+  /**
+   * Create a new viewing area, sending the request to the townService. Throws an error if the request
+   * is not successful. Does not immediately update local state about the new viewing area - it will be
+   * updated once the townService creates the area and emits an interactableUpdate
+   *
+   * @param newArea
+   */
+  async createSongArea(newArea: SongAreaModel) {
+    await this._townsService.createSongArea(this.townID, this.sessionToken, newArea);
   }
 
   /**
