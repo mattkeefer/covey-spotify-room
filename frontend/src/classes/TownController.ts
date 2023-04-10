@@ -74,7 +74,6 @@ export type TownEvents = {
    * after updating the town controller's record of conversation areas.
    */
   conversationAreasChanged: (currentConversationAreas: ConversationAreaController[]) => void;
-  songAreasChanged: (newSongAreas: SongAreaController[]) => void;
   /**
    * An event that indicates that the set of viewing areas has changed. This event is emitted after updating
    * the town controller's record of viewing areas.
@@ -85,6 +84,7 @@ export type TownEvents = {
    * the town controller's record of poster session areas.
    */
   posterSessionAreasChanged: (newPosterSessionAreas: PosterSessionAreaController[]) => void;
+  songAreasChanged: (newSongAreas: SongAreaController[]) => void;
   /**
    * An event that indicates that a new chat message has been received, which is the parameter passed to the listener
    */
@@ -619,6 +619,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         this._conversationAreas = [];
         this._viewingAreas = [];
         this._posterSessionAreas = [];
+        this._songAreas = [];
         initialData.interactables.forEach(eachInteractable => {
           if (isConversationArea(eachInteractable)) {
             this._conversationAreasInternal.push(
@@ -631,6 +632,9 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
             this._viewingAreas.push(new ViewingAreaController(eachInteractable));
           } else if (isPosterSessionArea(eachInteractable)) {
             this._posterSessionAreas.push(new PosterSessionAreaController(eachInteractable));
+          }
+          else if (isSongArea(eachInteractable)) {
+            this.songAreas.push(new SongAreaController(eachInteractable));
           }
         });
         this._userID = initialData.userID;
@@ -695,6 +699,34 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
+   * Retrieve the song area controller that corresponds to a songAreaModel, creating one if necessary
+   *
+   * @param songArea
+   * @returns
+   */
+   public getSongAreaController(
+    songArea: SongArea,
+  ): SongAreaController {
+    const existingController = this._songAreas.find(
+      eachExistingArea => eachExistingArea.id === songArea.name,
+    );
+    if (existingController) {
+      return existingController;
+    } else {
+      const newController = new SongAreaController({
+        id: songArea.name,
+        curr_song: songArea.defaultTitle,
+        comments: [],
+        like_count: 0,
+        songs_playlist: undefined,
+        playlist_def: undefined,
+      });
+      this._songAreas.push(newController);
+      return newController;
+    }
+  }
+
+  /**
    * Emit a viewing area update to the townService
    * @param viewingArea The Viewing Area Controller that is updated and should be emitted
    *    with the event
@@ -711,6 +743,15 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   public emitPosterSessionAreaUpdate(posterSessionArea: PosterSessionAreaController) {
     this._socket.emit('interactableUpdate', posterSessionArea.posterSessionAreaModel());
   }
+
+    /**
+   * Emit a song area update to the townService
+   * @param songArea The Song Area Controller that is updated and should be emitted
+   *    with the event
+   */
+     public emitSongAreaUpdate(songArea: SongAreaController) {
+      this._socket.emit('interactableUpdate', songArea.songAreaModel());
+    }
 
   /**
    * Get the image contents for a specified poster session area (specified via poster session area controller)
@@ -941,6 +982,15 @@ export function usePosterSessionAreaController(
   );
   if (!ret) {
     throw new Error(`Unable to locate poster session area id ${posterSessionAreaID}`);
+  }
+  return ret;
+}
+
+export function useSongAreaController(songAreaID: string): SongAreaController {
+  const townController = useTownController();
+  const ret = townController.songAreas.find(eachArea => eachArea.id === songAreaID);
+  if (!ret) {
+    throw new Error(`Unable to locate song area id ${songAreaID}`);
   }
   return ret;
 }
