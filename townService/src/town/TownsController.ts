@@ -1,3 +1,4 @@
+import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 import assert from 'assert';
 import {
   Body,
@@ -23,10 +24,11 @@ import {
   TownSettingsUpdate,
   ViewingArea,
   PosterSessionArea,
-  SongArea
+  SongArea,
 } from '../types/CoveyTownSocket';
 import PosterSessionAreaReal from './PosterSessionArea';
-import { isPosterSessionArea } from '../TestUtils';
+import SongAreaReal from './SongArea';
+import { isPosterSessionArea, isSongArea } from '../TestUtils';
 
 /**
  * This is the town route
@@ -198,7 +200,7 @@ export class TownsController extends Controller {
   }
 
   /**
-   * Creates a viewing area in a given town
+   * Creates a song area in a given town
    *
    * @param townID ID of the town in which to create the new viewing area
    * @param sessionToken session token of the player making the request, must
@@ -208,7 +210,7 @@ export class TownsController extends Controller {
    * @throws InvalidParametersError if the session token is not valid, or if the
    *          viewing area could not be created
    */
-  @Post('{townID}/viewingArea')
+  @Post('{townID}/songArea')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async createSongArea(
     @Path() townID: string,
@@ -301,8 +303,57 @@ export class TownsController extends Controller {
       title: posterSessionArea.title,
       stars: newStars, // increment stars
     };
+
     (<PosterSessionAreaReal>posterSessionArea).updateModel(updatedPosterSessionArea);
     return newStars;
+  }
+
+  /**
+   * Increment the likes of a given track in a song area in a given town, as long as there is
+   * a playlist and current song. Returns the new number of likes.
+   *
+   * @param townID ID of the town in which to get the poster session area image contents
+   * @param songAreaID interactable ID of the song area session
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          poster session specified does not exist, or if the poster session specified
+   *          does not have an image
+   */
+  @Patch('{townID}/{songAreaId}/incLikes')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async incrementSongAreaLikes(
+    @Path() townID: string,
+    @Path() songAreaID: string,
+    @Header('X-Session-Token') sessionToken: string,
+  ): Promise<number> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    const songArea = curTown.getInteractable(songAreaID);
+    if (!songArea || !isSongArea(songArea)) {
+      throw new InvalidParametersError('Invalid song area ID');
+    }
+    if (!songArea.getSongsPlaylist()) {
+      throw new InvalidParametersError('Cant add a like with no songs in the playlist');
+    }
+    const oldLikes = songArea.getLikeCount();
+    const newLikes = oldLikes + 1;
+    const updatedSongArea = {
+      id: songArea.id,
+      curr_song: songArea.getCurrentSong(),
+      like_count: newLikes,
+      comments: songArea.getComments(),
+      songs_playlist: songArea.getSongsPlaylist(),
+      playlist_def: songArea.getPlaylistDescription(),
+    };
+    (<SongAreaReal>songArea).updateModel(updatedSongArea);
+    return newLikes;
   }
 
   /**
