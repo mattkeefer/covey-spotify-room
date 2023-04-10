@@ -208,7 +208,7 @@ export class TownsController extends Controller {
    * @throws InvalidParametersError if the session token is not valid, or if the
    *          viewing area could not be created
    */
-  @Post('{townID}/viewingArea')
+  @Post('{townID}/songArea')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async createSongArea(
     @Path() townID: string,

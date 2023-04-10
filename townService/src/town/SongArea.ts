@@ -11,6 +11,7 @@ import {
   SongArea as SongAreaModel,
 } from '../types/CoveyTownSocket';
 import InteractableArea from './InteractableArea';
+import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 
 export default class SongArea extends InteractableArea {
   private _curr_song?: Track;
@@ -66,7 +67,7 @@ export default class SongArea extends InteractableArea {
   /**
    * Updates the state of this SongArea, setting the song, comments and likes, playlist and playlist desc properties
    *
-   * @param posterSessionArea updated model
+   * @param songArea updated model
    */
   public updateModel(updatedModel: SongAreaModel) {
     this._curr_song = updatedModel.curr_song;
@@ -136,6 +137,7 @@ export default class SongArea extends InteractableArea {
         songs_playlist: undefined,
         playlist_def: undefined,
       },
+
       box,
       townEmitter,
     );

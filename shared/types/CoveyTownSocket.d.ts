@@ -1,4 +1,5 @@
 import { SpotifyWebApi } from 'spotify-web-api-ts/types';
+import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 
 export type TownJoinResponse = {
   /** Unique ID that represents this player * */

@@ -6,6 +6,7 @@ import { io } from 'socket.io-client';
 import TypedEmitter from 'typed-emitter';
 import Interactable from '../components/Town/Interactable';
 import ViewingArea from '../components/Town/interactables/ViewingArea';
+import SongArea from '../components/Town/interactables/SongArea';
 import PosterSesssionArea from '../components/Town/interactables/PosterSessionArea';
 import { LoginController } from '../contexts/LoginControllerContext';
 import { TownsService, TownsServiceClient } from '../generated/client';
@@ -17,9 +18,11 @@ import {
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
   PosterSessionArea as PosterSessionAreaModel,
+  SongArea as SongAreaModel,
 } from '../types/CoveyTownSocket';
-import { isConversationArea, isViewingArea, isPosterSessionArea } from '../types/TypeUtils';
+import { isConversationArea, isViewingArea, isPosterSessionArea, isSongArea } from '../types/TypeUtils';
 import ConversationAreaController from './ConversationAreaController';
+import SongAreaController from './SongAreaController';
 import PlayerController from './PlayerController';
 import ViewingAreaController from './ViewingAreaController';
 import PosterSessionAreaController from './PosterSessionAreaController';
@@ -81,6 +84,7 @@ export type TownEvents = {
    * the town controller's record of poster session areas.
    */
   posterSessionAreasChanged: (newPosterSessionAreas: PosterSessionAreaController[]) => void;
+  songAreasChanged: (newSongAreas: SongAreaController[]) => void;
   /**
    * An event that indicates that a new chat message has been received, which is the parameter passed to the listener
    */
@@ -209,6 +213,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
   private _posterSessionAreas: PosterSessionAreaController[] = [];
 
+  private _songAreas: SongAreaController[] = [];
+
   public constructor({ userName, townID, loginController, spotifyApi }: ConnectionProperties) {
     super();
     this._townID = townID;
@@ -318,6 +324,15 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
   public get interactableEmitter() {
     return this._interactableEmitter;
+  }
+
+  public get songAreas() {
+    return this._songAreas;
+  }
+
+  public set songAreas(newSongAreas: SongAreaController[]) {
+    this._songAreas = newSongAreas;
+    this.emit('songAreasChanged', newSongAreas);
   }
 
   public get viewingAreas() {
@@ -437,7 +452,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
      * a conversationAreasChagned event to listeners of this TownController.
      *
      * If the update changes properties of the interactable, the interactable is also expected to emit its own
-     * events (@see ViewingAreaController and @see ConversationAreaController and @see PosterSessionAreaController)
+     * events (@see ViewingAreaController and @see ConversationAreaController and @see SongAreaController and @see PosterSessionAreaController)
      */
     this._socket.on('interactableUpdate', interactable => {
       if (isConversationArea(interactable)) {
@@ -458,6 +473,11 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         }
       } else if (isPosterSessionArea(interactable)) {
         const relArea = this.posterSessionAreas.find(area => area.id == interactable.id);
+        if (relArea) {
+          relArea.updateFrom(interactable);
+        }
+      } else if (isSongArea(interactable)) {
+        const relArea = this.songAreas.find(area => area.id == interactable.id);
         if (relArea) {
           relArea.updateFrom(interactable);
         }
@@ -538,8 +558,19 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    *
    * @param newArea
    */
-  async createViewingArea(newArea: ViewingAreaModel) {
+   async createViewingArea(newArea: ViewingAreaModel) {
     await this._townsService.createViewingArea(this.townID, this.sessionToken, newArea);
+  }
+
+  /**
+   * Create a new viewing area, sending the request to the townService. Throws an error if the request
+   * is not successful. Does not immediately update local state about the new viewing area - it will be
+   * updated once the townService creates the area and emits an interactableUpdate
+   *
+   * @param newArea
+   */
+  async createSongArea(newArea: SongAreaModel) {
+    await this._townsService.createSongArea(this.townID, this.sessionToken, newArea);
   }
 
   /**
@@ -588,6 +619,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         this._conversationAreas = [];
         this._viewingAreas = [];
         this._posterSessionAreas = [];
+        this._songAreas = [];
         initialData.interactables.forEach(eachInteractable => {
           if (isConversationArea(eachInteractable)) {
             this._conversationAreasInternal.push(
@@ -600,6 +632,9 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
             this._viewingAreas.push(new ViewingAreaController(eachInteractable));
           } else if (isPosterSessionArea(eachInteractable)) {
             this._posterSessionAreas.push(new PosterSessionAreaController(eachInteractable));
+          }
+          else if (isSongArea(eachInteractable)) {
+            this.songAreas.push(new SongAreaController(eachInteractable));
           }
         });
         this._userID = initialData.userID;
@@ -664,6 +699,34 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
+   * Retrieve the song area controller that corresponds to a songAreaModel, creating one if necessary
+   *
+   * @param songArea
+   * @returns
+   */
+   public getSongAreaController(
+    songArea: SongArea,
+  ): SongAreaController {
+    const existingController = this._songAreas.find(
+      eachExistingArea => eachExistingArea.id === songArea.name,
+    );
+    if (existingController) {
+      return existingController;
+    } else {
+      const newController = new SongAreaController({
+        id: songArea.name,
+        curr_song: songArea.defaultTitle,
+        comments: [],
+        like_count: 0,
+        songs_playlist: undefined,
+        playlist_def: undefined,
+      });
+      this._songAreas.push(newController);
+      return newController;
+    }
+  }
+
+  /**
    * Emit a viewing area update to the townService
    * @param viewingArea The Viewing Area Controller that is updated and should be emitted
    *    with the event
@@ -680,6 +743,15 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   public emitPosterSessionAreaUpdate(posterSessionArea: PosterSessionAreaController) {
     this._socket.emit('interactableUpdate', posterSessionArea.posterSessionAreaModel());
   }
+
+    /**
+   * Emit a song area update to the townService
+   * @param songArea The Song Area Controller that is updated and should be emitted
+   *    with the event
+   */
+     public emitSongAreaUpdate(songArea: SongAreaController) {
+      this._socket.emit('interactableUpdate', songArea.songAreaModel());
+    }
 
   /**
    * Get the image contents for a specified poster session area (specified via poster session area controller)
@@ -910,6 +982,15 @@ export function usePosterSessionAreaController(
   );
   if (!ret) {
     throw new Error(`Unable to locate poster session area id ${posterSessionAreaID}`);
+  }
+  return ret;
+}
+
+export function useSongAreaController(songAreaID: string): SongAreaController {
+  const townController = useTownController();
+  const ret = townController.songAreas.find(eachArea => eachArea.id === songAreaID);
+  if (!ret) {
+    throw new Error(`Unable to locate song area id ${songAreaID}`);
   }
   return ret;
 }
