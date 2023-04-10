@@ -7,7 +7,6 @@ import {
   SongArea as SongAreaModel,
 } from '../types/CoveyTownSocket';
 import InteractableArea from './InteractableArea';
-import { SpotifyWebApi } from 'spotify-web-api-ts/types';
 import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 
 export default class SongArea extends InteractableArea{
@@ -135,5 +134,4 @@ export default class SongArea extends InteractableArea{
       townEmitter,
     );
   }
-
 }
