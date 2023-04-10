@@ -23,7 +23,7 @@ import {
   TownSettingsUpdate,
   ViewingArea,
   PosterSessionArea,
-  SongArea,
+  SongArea
 } from '../types/CoveyTownSocket';
 import PosterSessionAreaReal from './PosterSessionArea';
 import { isPosterSessionArea } from '../TestUtils';
@@ -198,17 +198,17 @@ export class TownsController extends Controller {
   }
 
   /**
-   * Creates a song area in a given town
+   * Creates a viewing area in a given town
    *
-   * @param townID ID of the town in which to create the new song area
+   * @param townID ID of the town in which to create the new viewing area
    * @param sessionToken session token of the player making the request, must
    *        match the session token returned when the player joined the town
-   * @param requestBody The new song area to create
+   * @param requestBody The new viewing area to create
    *
    * @throws InvalidParametersError if the session token is not valid, or if the
-   *          song area could not be created
+   *          viewing area could not be created
    */
-  @Post('{townID}/songArea')
+  @Post('{townID}/viewingArea')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async createSongArea(
     @Path() townID: string,
