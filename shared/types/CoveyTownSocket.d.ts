@@ -1,3 +1,6 @@
+import { SpotifyWebApi } from 'spotify-web-api-ts/types';
+import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
+
 export type TownJoinResponse = {
   /** Unique ID that represents this player * */
   userID: string;
@@ -78,9 +81,6 @@ export interface PosterSessionArea {
   imageContents?: string;
   title?: string;
 }
-
-import { SpotifyWebApi } from 'spotify-web-api-ts/types';
-import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 
 export interface SongArea {
   id: string;

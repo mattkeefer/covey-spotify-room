@@ -63,7 +63,7 @@ export default class SongArea extends InteractableArea{
   /**
    * Updates the state of this SongArea, setting the song, comments and likes, playlist and playlist desc properties
    *
-   * @param posterSessionArea updated model
+   * @param songArea updated model
    */
   public updateModel(updatedModel: SongAreaModel) {
     this._curr_song = updatedModel.curr_song;
@@ -129,7 +129,7 @@ export default class SongArea extends InteractableArea{
       height: mapObject.height,
     };
     return new SongArea(
-      { id: mapObject.name, curr_song: undefined, comments: undefined, like_count : 0, songs_playlist : undefined },
+      { id: mapObject.name, curr_song: undefined, comments: [], like_count : 0, songs_playlist : undefined },
       box,
       townEmitter,
     );

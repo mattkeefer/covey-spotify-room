@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import { useEffect, useState } from 'react';
 import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 import TypedEventEmitter from 'typed-emitter';
-import { SongArea as SongAreaModel } from '../types/CoveyTownSocket';
+import { SongArea as SongAreaModel, Comment } from '../types/CoveyTownSocket';
 
 /**
  * The events that a SongAreaController can emit
@@ -19,7 +19,7 @@ export type SongAreaEvents = {
  * A SongAreaController manages the state for a SongArea in the frontend app, serving as a bridge between the songs
  * that are being displayed in the user's browser and the backend TownService
  *
- * The SongAreaController implements callbacks that handle events from the poster image in this browser window, and
+ * The SongAreaController implements callbacks that handle events from the playlist in this browser window, and
  * emits updates when the state is updated, @see SongAreaEvents
  */
 export default class SongAreaController extends (EventEmitter as new () => TypedEventEmitter<SongAreaEvents>) {
@@ -29,7 +29,7 @@ export default class SongAreaController extends (EventEmitter as new () => Typed
    * Constructs a new SongAreaController, initialized with the state of the
    * provided SongAreaModel.
    *
-   * @param SongAreaModel The poster session area model that this controller should represent
+   * @param SongAreaModel The song area model that this controller should represent
    */
   constructor(songAreaModel: SongAreaModel) {
     super();
@@ -69,7 +69,6 @@ export default class SongAreaController extends (EventEmitter as new () => Typed
   public set comments(comments: Comment[] | undefined) {
     if (this._model.comments !== comments) {
       this._model.comments = comments;
-      // if we're replacing the poster contents, then reset the players who starred to zero
       this.emit('songCommentsChange', comments);
     }
   }
@@ -121,7 +120,7 @@ export default class SongAreaController extends (EventEmitter as new () => Typed
   }
 
   /**
-   * Applies updates to this poster session area controller's model, setting the fields
+   * Applies updates to this song area controller's model, setting the fields
    * image, stars, and title from the updatedModel
    *
    * @param updatedModel
@@ -137,7 +136,7 @@ export default class SongAreaController extends (EventEmitter as new () => Typed
 }
 
 /**
- * A hook that returns the number of stars for the poster session area with the given controller
+ * A hook that returns the number of stars for the song area with the given controller
  */
 export function useCurrSong(controller: SongAreaController): Track | undefined {
   const [curr_song, setcurr_song] = useState(controller.curr_song);
