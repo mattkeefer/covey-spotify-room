@@ -1,6 +1,6 @@
 import { Box, Heading, ListItem, OrderedList } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
+import { Track } from '../../types/CoveyTownSocket';
 import useTownController from '../../hooks/useTownController';
 
 /**
@@ -27,7 +27,7 @@ export default function SpotifyDataList(): JSX.Element {
         {topTracks &&
           topTracks.map(track => (
             <ListItem key={track.id}>
-              {track.name} by {track.artists[0].name}
+              {track.name} by {track.artists[0]}
             </ListItem>
           ))}
       </OrderedList>

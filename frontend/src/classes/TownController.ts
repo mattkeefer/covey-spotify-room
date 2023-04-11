@@ -19,15 +19,22 @@ import {
   ViewingArea as ViewingAreaModel,
   PosterSessionArea as PosterSessionAreaModel,
   SongArea as SongAreaModel,
+  Playlist,
+  Track,
 } from '../types/CoveyTownSocket';
-import { isConversationArea, isViewingArea, isPosterSessionArea, isSongArea } from '../types/TypeUtils';
+import {
+  isConversationArea,
+  isViewingArea,
+  isPosterSessionArea,
+  isSongArea,
+} from '../types/TypeUtils';
 import ConversationAreaController from './ConversationAreaController';
 import SongAreaController from './SongAreaController';
 import PlayerController from './PlayerController';
 import ViewingAreaController from './ViewingAreaController';
 import PosterSessionAreaController from './PosterSessionAreaController';
 import { SpotifyWebApi } from 'spotify-web-api-ts/types';
-import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
+import { Track as SpotifyTrack } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 import axios from 'axios';
 
 const CALCULATE_NEARBY_PLAYERS_DELAY = 300;
@@ -558,7 +565,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    *
    * @param newArea
    */
-   async createViewingArea(newArea: ViewingAreaModel) {
+  async createViewingArea(newArea: ViewingAreaModel) {
     await this._townsService.createViewingArea(this.townID, this.sessionToken, newArea);
   }
 
@@ -632,8 +639,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
             this._viewingAreas.push(new ViewingAreaController(eachInteractable));
           } else if (isPosterSessionArea(eachInteractable)) {
             this._posterSessionAreas.push(new PosterSessionAreaController(eachInteractable));
-          }
-          else if (isSongArea(eachInteractable)) {
+          } else if (isSongArea(eachInteractable)) {
             this.songAreas.push(new SongAreaController(eachInteractable));
           }
         });
@@ -704,9 +710,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    * @param songArea
    * @returns
    */
-   public getSongAreaController(
-    songArea: SongArea,
-  ): SongAreaController {
+  public getSongAreaController(songArea: SongArea): SongAreaController {
     const existingController = this._songAreas.find(
       eachExistingArea => eachExistingArea.id === songArea.name,
     );
@@ -715,7 +719,13 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     } else {
       const newController = new SongAreaController({
         id: songArea.name,
-        curr_song: songArea.defaultTitle,
+        curr_song: {
+          artists: [],
+          href: '',
+          id: '',
+          name: songArea.defaultTitle,
+          uri: '',
+        },
         comments: [],
         like_count: 0,
         songs_playlist: undefined,
@@ -744,14 +754,14 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     this._socket.emit('interactableUpdate', posterSessionArea.posterSessionAreaModel());
   }
 
-    /**
+  /**
    * Emit a song area update to the townService
    * @param songArea The Song Area Controller that is updated and should be emitted
    *    with the event
    */
-     public emitSongAreaUpdate(songArea: SongAreaController) {
-      this._socket.emit('interactableUpdate', songArea.songAreaModel());
-    }
+  public emitSongAreaUpdate(songArea: SongAreaController) {
+    this._socket.emit('interactableUpdate', songArea.songAreaModel());
+  }
 
   /**
    * Get the image contents for a specified poster session area (specified via poster session area controller)
@@ -797,7 +807,18 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         },
       },
     );
-    return response.data.items;
+    const tracks: SpotifyTrack[] = response.data.items;
+    const tracklist: Track[] = [];
+    tracks.forEach(track =>
+      tracklist.push({
+        artists: track.artists.map(a => a.name),
+        href: track.href,
+        id: track.id,
+        name: track.name,
+        uri: track.uri,
+      }),
+    );
+    return tracklist;
   }
 
   /**
@@ -821,7 +842,33 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       public: true,
       collaborative: true,
     });
-    return response;
+    const playlist = {
+      description: response.description,
+      href: response.href,
+      id: response.id,
+      images: response.images.map(img => img.url),
+      name: response.name,
+      owner: response.owner.id,
+      tracks: response.tracks.items.map(track =>
+        track.track.type === 'track'
+          ? {
+              artists: track.track.artists.map(a => a.name),
+              href: track.track.href,
+              id: track.track.id,
+              name: track.track.name,
+              uri: track.track.uri,
+            }
+          : {
+              artists: [],
+              href: '',
+              id: '',
+              name: '',
+              uri: '',
+            },
+      ),
+      uri: response.uri,
+    };
+    return playlist;
   }
 
   /**
