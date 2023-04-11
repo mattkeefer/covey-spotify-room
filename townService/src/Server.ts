@@ -131,6 +131,19 @@ app.get('/songs', async (req, res) => {
   res.send(songs);
 });
 
+// app POST endpoint
+app.post('/songs', async (req, res) => {
+  const song2 = new Song({
+    songID: req.body.songID,
+    songName: req.body.songName,
+    likeCount: req.body.likeCount,
+    dislikeCount: req.body.dislikeCount,
+    comments: req.body.comments,
+  });
+  await song2.save();
+  res.send(song2);
+});
+
 // Save the song to the database
 // song
 //   .save()
