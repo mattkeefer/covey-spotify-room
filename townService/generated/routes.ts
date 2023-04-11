@@ -86,6 +86,34 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Track": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"uri":{"dataType":"string","required":true},"name":{"dataType":"string","required":true},"id":{"dataType":"string","required":true},"href":{"dataType":"string","required":true},"artists":{"dataType":"array","array":{"dataType":"string"},"required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Comment": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"commentText":{"dataType":"string","required":true},"username":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Playlist": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"uri":{"dataType":"string","required":true},"tracks":{"dataType":"array","array":{"dataType":"refAlias","ref":"Track"},"required":true},"owner":{"dataType":"string","required":true},"name":{"dataType":"string","required":true},"images":{"dataType":"array","array":{"dataType":"string"},"required":true},"id":{"dataType":"string","required":true},"href":{"dataType":"string","required":true},"description":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "SongArea": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "curr_song": {"ref":"Track"},
+            "comments": {"dataType":"array","array":{"dataType":"refAlias","ref":"Comment"}},
+            "like_count": {"dataType":"double","required":true},
+            "songs_playlist": {"ref":"Playlist"},
+            "playlist_def": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
 const validationService = new ValidationService(models);
 
@@ -273,6 +301,33 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.createPosterSessionArea.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/towns/:townID/songArea',
+            ...(fetchMiddlewares<RequestHandler>(TownsController)),
+            ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.createSongArea)),
+
+            function TownsController_createSongArea(request: any, response: any, next: any) {
+            const args = {
+                    townID: {"in":"path","name":"townID","required":true,"dataType":"string"},
+                    sessionToken: {"in":"header","name":"X-Session-Token","required":true,"dataType":"string"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"SongArea"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new TownsController();
+
+
+              const promise = controller.createSongArea.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
