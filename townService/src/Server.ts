@@ -7,11 +7,15 @@ import { ValidateError } from 'tsoa';
 import fs from 'fs/promises';
 import { MongoClient, ServerApiVersion } from 'mongodb';
 import { Server as SocketServer } from 'socket.io';
+import mongoose from 'mongoose';
+import { env } from 'process';
 import { RegisterRoutes } from '../generated/routes';
 import TownsStore from './lib/TownsStore';
 import { ClientToServerEvents, ServerToClientEvents } from './types/CoveyTownSocket';
 import { TownsController } from './town/TownsController';
 import { logError } from './Utils';
+
+
 
 // Create the server instances
 const app = Express();
@@ -78,17 +82,28 @@ server.listen(process.env.PORT || 8081, () => {
 });
 
 // Establish a connection to the database
-const URI =
+const MONOGO_URI =
   'mongodb+srv://mikeymundia:HiWcqPuJthaxp8Ct@convey-town.hjgrpb3.mongodb.net/?retryWrites=true&w=majority';
-const client = new MongoClient(URI);
 
-async function connectToDatabase() {
-  try {
-    await client.connect();
-    console.log('Connected to MongoDB');
-  } catch (error) {
-    console.error(error);
-  }
-}
+mongoose.connect(MONOGO_URI || 'mongodb://localhost/27017');
 
-connectToDatabase();
+mongoose.connection.on('connected', () => {
+  console.log('Connected to MongoDB');
+});
+
+mongoose.connection.on('error', err => {
+  console.error(err);
+});
+
+// const client = new MongoClient(URI);
+
+// async function connectToDatabase() {
+//   try {
+//     await client.connect();
+//     console.log('Connected to MongoDB');
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
+
+// connectToDatabase();
