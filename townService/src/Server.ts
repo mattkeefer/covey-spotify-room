@@ -125,11 +125,17 @@ const song = new Song({
   ],
 });
 
+// app GET endpoint
+app.get('/songs', async (req, res) => {
+  const songs = await Song.find();
+  res.send(songs);
+});
+
 // Save the song to the database
-song
-  .save()
-  .then(() => console.log('Song saved to the database'))
-  .catch(err => console.error(err));
+// song
+//   .save()
+//   .then(() => console.log('Song saved to the database'))
+//   .catch(err => console.error(err));
 
 // const client = new MongoClient(URI);
 
