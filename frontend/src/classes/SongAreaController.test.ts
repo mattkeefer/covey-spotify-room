@@ -1,12 +1,9 @@
 import { mock, mockClear, MockProxy } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
 import { SongArea } from '../generated/client';
-import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 import TownController from './TownController';
-import { Comment } from '../types/CoveyTownSocket';
-import SongAreaController, {
-  SongAreaEvents,
-} from './SongAreaController';
+import { Comment, Playlist, Track } from '../types/CoveyTownSocket';
+import SongAreaController, { SongAreaEvents } from './SongAreaController';
 
 describe('SongAreaController', () => {
   // A valid SongArea to be reused within the tests
@@ -16,7 +13,7 @@ describe('SongAreaController', () => {
   const mockListeners = mock<SongAreaEvents>();
   beforeEach(() => {
     testAreaModel = {
-      id: nanoid(),  
+      id: nanoid(),
       curr_song: mock<Track>({ uri: 'track:1234567890' }),
       comments: mock<Comment[]>(),
       like_count: 1,
@@ -38,13 +35,13 @@ describe('SongAreaController', () => {
   });
   describe('Setting playlist_def property', () => {
     it('updates the property and emits a songsPlaylistDef event if the property changes', () => {
-      const newDef = nanoid();
+      const newDef = 'playlist def';
       testArea.playlist_def = newDef;
-      expect(mockListeners.songLikeCountChange).toBeCalledWith(newDef);
+      expect(mockListeners.songsPlaylistDef).toBeCalledWith(newDef);
       expect(testArea.playlist_def).toEqual(newDef);
     });
     it('does not emit a songsPlaylistDef event if the playlist_def property does not change', () => {
-        testArea.playlist_def = testAreaModel.playlist_def;
+      testArea.playlist_def = testAreaModel.playlist_def;
       expect(mockListeners.songsPlaylistDef).not.toBeCalled();
     });
   });
@@ -68,7 +65,7 @@ describe('SongAreaController', () => {
       expect(testArea.like_count).toEqual(newCount);
     });
     it('does not emit a songLikeCountChange event if the like_count property does not change', () => {
-        testArea.like_count = testAreaModel.like_count;
+      testArea.like_count = testAreaModel.like_count;
       expect(mockListeners.songLikeCountChange).not.toBeCalled();
     });
   });
@@ -86,10 +83,10 @@ describe('SongAreaController', () => {
   });
   describe('Setting curr_song property', () => {
     it('updates the property and emits a songCurrSongChange event if the property changes', () => {
-        const newCurrSong = mock<Track>();
-        testArea.curr_song = newCurrSong;
-        expect(mockListeners.songCurrSongChange).toBeCalledWith(newCurrSong);
-        expect(testArea.curr_song).toEqual(newCurrSong);
+      const newCurrSong = mock<Track>();
+      testArea.curr_song = newCurrSong;
+      expect(mockListeners.songCurrSongChange).toBeCalledWith(newCurrSong);
+      expect(testArea.curr_song).toEqual(newCurrSong);
     });
     it('does not emit a songCurrSongChange event if the curr_song property does not change', () => {
       testArea.curr_song = testAreaModel.curr_song;
@@ -105,11 +102,12 @@ describe('SongAreaController', () => {
   describe('updateFrom', () => {
     it('Updates all the properties', () => {
       const newModel: SongArea = {
+        id: nanoid(),
         curr_song: mock<Track>({ uri: 'track:1111111111' }),
         comments: mock<Comment[]>(),
         like_count: testAreaModel.like_count + 1,
         songs_playlist: mock<Playlist>({ id: '22222' }),
-        playlist_def: nanoid(), 
+        playlist_def: nanoid(),
       };
       testArea.updateFrom(newModel);
       expect(testArea.curr_song).toEqual(newModel.curr_song);
@@ -126,7 +124,7 @@ describe('SongAreaController', () => {
     it('Does not update the id property', () => {
       const existingID = testArea.id;
       const newModel: SongArea = {
-        id: nanoid(),  
+        id: nanoid(),
         curr_song: mock<Track>({ uri: 'track:1234599999' }),
         comments: mock<Comment[]>(),
         like_count: 1,

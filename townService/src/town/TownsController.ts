@@ -23,7 +23,7 @@ import {
   TownSettingsUpdate,
   ViewingArea,
   PosterSessionArea,
-  SongArea
+  SongArea,
 } from '../types/CoveyTownSocket';
 import PosterSessionAreaReal from './PosterSessionArea';
 import { isPosterSessionArea } from '../TestUtils';

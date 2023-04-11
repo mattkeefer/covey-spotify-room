@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-// import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
 import Player from '../lib/Player';
 import {
@@ -11,7 +10,6 @@ import {
   SongArea as SongAreaModel,
 } from '../types/CoveyTownSocket';
 import InteractableArea from './InteractableArea';
-import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 
 export default class SongArea extends InteractableArea {
   private _curr_song?: Track;

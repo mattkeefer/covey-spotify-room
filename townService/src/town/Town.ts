@@ -15,7 +15,7 @@ import {
   SocketData,
   ViewingArea as ViewingAreaModel,
   PosterSessionArea as PosterSessionAreaModel,
-  SongArea as SongAreaModel
+  SongArea as SongAreaModel,
 } from '../types/CoveyTownSocket';
 import ConversationArea from './ConversationArea';
 import InteractableArea from './InteractableArea';
@@ -373,9 +373,7 @@ export default class Town {
     }
     // find an existing song session area with the same ID
     const existingSongArea = <SongArea>(
-      this._interactables.find(
-        area => area.id === songArea.id && area instanceof SongArea,
-      )
+      this._interactables.find(area => area.id === songArea.id && area instanceof SongArea)
     );
     // if the id does not match an existing area, or if it does but the existing area
     // already has an image and title
@@ -391,6 +389,7 @@ export default class Town {
     this._broadcastEmitter.emit('interactableUpdate', existingSongArea.toModel());
     return true;
   }
+
   /**
    * Fetch a player's session based on the provided session token. Returns undefined if the
    * session token is not valid.

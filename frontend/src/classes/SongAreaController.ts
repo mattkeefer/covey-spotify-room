@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { EventEmitter } from 'events';
 import { useEffect, useState } from 'react';
-import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 import TypedEventEmitter from 'typed-emitter';
-import { SongArea as SongAreaModel, Comment } from '../types/CoveyTownSocket';
+import { SongArea as SongAreaModel, Comment, Playlist, Track } from '../types/CoveyTownSocket';
 
 /**
  * The events that a SongAreaController can emit
@@ -87,7 +87,6 @@ export default class SongAreaController extends (EventEmitter as new () => Typed
     }
   }
 
-
   public get songs_playlist(): Playlist | undefined {
     return this._model.songs_playlist;
   }
@@ -99,7 +98,6 @@ export default class SongAreaController extends (EventEmitter as new () => Typed
     }
   }
 
-
   public get playlist_def(): string | undefined {
     return this._model.playlist_def;
   }
@@ -110,7 +108,6 @@ export default class SongAreaController extends (EventEmitter as new () => Typed
       this.emit('songsPlaylistDef', playlist_def);
     }
   }
-
 
   /**
    * @returns SongAreaModel that represents the current state of this SongAreaController
@@ -192,4 +189,3 @@ export function usePlaylistDef(controller: SongAreaController): string | undefin
   }, [controller]);
   return playlist_def;
 }
-

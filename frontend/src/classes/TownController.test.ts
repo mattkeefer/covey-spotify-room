@@ -2,7 +2,10 @@ import axios from 'axios';
 import { mock, mockClear, MockProxy } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
 import { SpotifyWebApi } from 'spotify-web-api-ts';
-import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
+import {
+  Playlist as SpotifyPlaylist,
+  Track as SpotifyTrack,
+} from 'spotify-web-api-ts/types/types/SpotifyObjects';
 import { LoginController } from '../contexts/LoginControllerContext';
 import { ViewingArea } from '../generated/client';
 import { PosterSessionArea } from '../generated/client';
@@ -20,6 +23,8 @@ import {
   PlayerLocation,
   ServerToClientEvents,
   TownJoinResponse,
+  Playlist,
+  Track,
 } from '../types/CoveyTownSocket';
 import { isConversationArea, isPosterSessionArea, isViewingArea } from '../types/TypeUtils';
 import PlayerController from './PlayerController';
@@ -530,12 +535,52 @@ describe('TownController', () => {
     expect(mockLoginController.setTownController).toBeCalledWith(null);
   });
   describe('Spotify API calls', () => {
+    const mockSpotifyTrack = mock<SpotifyTrack>({
+      artists: [{ name: 'artist1' }],
+      href: 'href',
+      id: 'test',
+      name: 'mock track',
+      uri: 'track:1234567890',
+    });
+    const mockTrack: Track = {
+      artists: ['artist1'],
+      href: 'href',
+      id: 'test',
+      name: 'mock track',
+      uri: 'track:1234567890',
+    };
+    const mockSpotifyPlaylist = mock<SpotifyPlaylist>({
+      description: 'playlist',
+      href: 'href',
+      id: '12345',
+      images: [{ url: 'img1' }, { url: 'img2' }],
+      name: 'test playlist',
+      owner: { id: 'admin' },
+      tracks: { items: [] },
+      uri: 'uri',
+    });
+    const mockPlaylist: Playlist = {
+      description: 'playlist',
+      href: 'href',
+      id: '12345',
+      images: ['img1', 'img2'],
+      name: 'test playlist',
+      owner: 'admin',
+      tracks: [],
+      uri: 'uri',
+    };
     it('Gets top songs from a player', async () => {
       jest.resetAllMocks();
       const axiosSpy = jest.spyOn(axios, 'get');
-      const mockTrack = mock<Track>();
+      const mockSpotifyTracks = [
+        mockSpotifyTrack,
+        mockSpotifyTrack,
+        mockSpotifyTrack,
+        mockSpotifyTrack,
+        mockSpotifyTrack,
+      ];
       const mockTracks = [mockTrack, mockTrack, mockTrack, mockTrack, mockTrack];
-      const mockResponse = { data: { items: mockTracks } };
+      const mockResponse = { data: { items: mockSpotifyTracks } };
       axiosSpy.mockResolvedValue(mockResponse);
       await expect(testController.getSpotifyTopSongs()).resolves.toEqual(mockTracks);
       expect(axiosSpy).toBeCalledTimes(1);
@@ -543,8 +588,7 @@ describe('TownController', () => {
     it('Creates a new playlist successfully', async () => {
       jest.resetAllMocks();
       const spotifySpy = jest.spyOn(spotifyApi.playlists, 'createPlaylist');
-      const mockPlaylist = mock<Playlist>({ id: '12345' });
-      spotifySpy.mockResolvedValue(mockPlaylist);
+      spotifySpy.mockResolvedValue(mockSpotifyPlaylist);
       await expect(testController.createSpotifyPlaylist()).resolves.toEqual(mockPlaylist);
       expect(spotifySpy).toBeCalledTimes(1);
       expect(spotifySpy).toBeCalledWith('mknexus8', 'Covey Town', {
@@ -555,8 +599,6 @@ describe('TownController', () => {
     it('Can add tracks to a playlist', async () => {
       jest.resetAllMocks();
       const spotifySpy = jest.spyOn(spotifyApi.playlists, 'addItemsToPlaylist');
-      const mockPlaylist = mock<Playlist>({ id: '12345' });
-      const mockTrack = mock<Track>({ uri: 'track:1234567890' });
       const mockTracks = [mockTrack, mockTrack, mockTrack, mockTrack, mockTrack];
       await expect(
         testController.addTracksToPlaylist(mockTracks, mockPlaylist),
@@ -573,12 +615,10 @@ describe('TownController', () => {
       const spotifySpy1 = jest.spyOn(spotifyApi.playlists, 'createPlaylist');
       const spotifySpy2 = jest.spyOn(spotifyApi.playlists, 'addItemsToPlaylist');
 
-      const mockTrack = mock<Track>({ uri: 'track:1234567890' });
       const mockTracks = [mockTrack, mockTrack, mockTrack, mockTrack, mockTrack];
-      const mockPlaylist = mock<Playlist>({ id: '12345' });
       const mockResponse = { data: { items: mockTracks } };
       axiosSpy.mockResolvedValue(mockResponse);
-      spotifySpy1.mockResolvedValue(mockPlaylist);
+      spotifySpy1.mockResolvedValue(mockSpotifyPlaylist);
 
       const topTracks = await testController.getSpotifyTopSongs();
       const newPlaylist = await testController.createSpotifyPlaylist();
