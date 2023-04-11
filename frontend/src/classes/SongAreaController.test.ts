@@ -1,6 +1,6 @@
 import { mock, mockClear, MockProxy } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
-import { SongArea } from '../generated/client';
+import { SongArea } from '../types/CoveyTownSocket';
 import TownController from './TownController';
 import { Comment, Playlist, Track } from '../types/CoveyTownSocket';
 import SongAreaController, { SongAreaEvents } from './SongAreaController';

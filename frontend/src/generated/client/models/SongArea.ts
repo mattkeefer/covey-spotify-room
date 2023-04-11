@@ -1,5 +1,4 @@
-import { Playlist, Track } from 'spotify-web-api-ts/types/types/SpotifyObjects';
-import { Comment } from '../../../types/CoveyTownSocket';
+import { Comment, Track, Playlist } from '../../../types/CoveyTownSocket';
 
 /* istanbul ignore file */
 /* tslint:disable */
