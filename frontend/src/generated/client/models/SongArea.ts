@@ -6,6 +6,7 @@ import { Comment } from '../../../types/CoveyTownSocket';
 /* eslint-disable */
 
 export type SongArea = {
+    id: string;
     curr_song?: Track;
     comments?: Comment[];
     like_count: number;

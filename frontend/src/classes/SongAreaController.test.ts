@@ -105,6 +105,7 @@ describe('SongAreaController', () => {
   describe('updateFrom', () => {
     it('Updates all the properties', () => {
       const newModel: SongArea = {
+        id: nanoid(),
         curr_song: mock<Track>({ uri: 'track:1111111111' }),
         comments: mock<Comment[]>(),
         like_count: testAreaModel.like_count + 1,

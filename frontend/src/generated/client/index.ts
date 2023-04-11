@@ -17,5 +17,6 @@ export type { TownCreateParams } from './models/TownCreateParams';
 export type { TownCreateResponse } from './models/TownCreateResponse';
 export type { TownSettingsUpdate } from './models/TownSettingsUpdate';
 export type { ViewingArea } from './models/ViewingArea';
+export type { SongArea } from './models/SongArea';
 
 export { TownsService } from './services/TownsService';
