@@ -30,7 +30,10 @@ import { SpotifyWebApi } from 'spotify-web-api-ts';
 import { PrivateUser } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 
 const SPOTIFY_CLIENT_ID = '6c3a5f706c5b443ca47c478c8836bd82';
-const SPOTIFY_REDIRECT_URI = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
+const SPOTIFY_REDIRECT_URI =
+  window.location.port !== ''
+    ? `${window.location.protocol}//${window.location.hostname}:${window.location.port}`
+    : `${window.location.protocol}//${window.location.hostname}`;
 const { SPOTIFY_CLIENT_SECRET } = process.env;
 
 export default function TownSelection(): JSX.Element {

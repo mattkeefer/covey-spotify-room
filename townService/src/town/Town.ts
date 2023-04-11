@@ -463,10 +463,15 @@ export default class Town {
       .filter(eachObject => eachObject.type === 'PosterSessionArea')
       .map(eachPSAreaObj => PosterSessionArea.fromMapObject(eachPSAreaObj, this._broadcastEmitter));
 
+    const songAreas = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'SongArea')
+      .map(eachSongAreaObj => SongArea.fromMapObject(eachSongAreaObj, this._broadcastEmitter));
+
     this._interactables = this._interactables
       .concat(viewingAreas)
       .concat(conversationAreas)
-      .concat(posterSessionAreas);
+      .concat(posterSessionAreas)
+      .concat(songAreas);
     this._validateInteractables();
   }
 
