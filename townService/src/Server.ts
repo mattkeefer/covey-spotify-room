@@ -16,7 +16,6 @@ import { TownsController } from './town/TownsController';
 import { logError } from './Utils';
 
 
-
 // Create the server instances
 const app = Express();
 app.use(CORS());
@@ -94,6 +93,43 @@ mongoose.connection.on('connected', () => {
 mongoose.connection.on('error', err => {
   console.error(err);
 });
+
+
+// Song Schema
+const songSchema = new mongoose.Schema({
+  songID: String,
+  songName: String,
+  likeCount: Number,
+  dislikeCount: Number,
+  comments: [{ username: String, commentText: String }],
+});
+
+// Song Model
+const Song = mongoose.model('Song', songSchema);
+
+// Create a  dummy song
+const song = new Song({
+  songID: '123',
+  songName: 'Hello',
+  likeCount: 0,
+  dislikeCount: 0,
+  comments: [
+    {
+      username: 'mikey',
+      commentText: 'Hello World',
+    },
+    {
+      username: 'ronit',
+      commentText: 'Hello Server',
+    },
+  ],
+});
+
+// Save the song to the database
+song
+  .save()
+  .then(() => console.log('Song saved to the database'))
+  .catch(err => console.error(err));
 
 // const client = new MongoClient(URI);
 
