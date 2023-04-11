@@ -15,7 +15,6 @@ import { ClientToServerEvents, ServerToClientEvents } from './types/CoveyTownSoc
 import { TownsController } from './town/TownsController';
 import { logError } from './Utils';
 
-
 // Create the server instances
 const app = Express();
 app.use(CORS());
@@ -94,7 +93,6 @@ mongoose.connection.on('error', err => {
   console.error(err);
 });
 
-
 // Song Schema
 const songSchema = new mongoose.Schema({
   songID: String,
@@ -105,6 +103,7 @@ const songSchema = new mongoose.Schema({
 });
 
 // Song Model
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const Song = mongoose.model('Song', songSchema);
 
 // Create a  dummy song
