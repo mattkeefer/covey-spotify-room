@@ -1,4 +1,10 @@
-import { ConversationArea, Interactable, PosterSessionArea, SongArea, ViewingArea } from './CoveyTownSocket';
+import {
+  ConversationArea,
+  Interactable,
+  PosterSessionArea,
+  SongArea,
+  ViewingArea,
+} from './CoveyTownSocket';
 
 /**
  * Test to see if an interactable is a conversation area
@@ -24,6 +30,6 @@ export function isPosterSessionArea(interactable: Interactable): interactable is
 /**
  * Test to see if an interactable is a song area
  */
- export function isSongArea(interactable: Interactable): interactable is SongArea {
+export function isSongArea(interactable: Interactable): interactable is SongArea {
   return 'curr_track' in interactable;
 }

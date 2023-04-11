@@ -1,6 +1,5 @@
 import Interactable, { KnownInteractableTypes } from '../Interactable';
 
-
 export default class SongArea extends Interactable {
   private _labelText?: Phaser.GameObjects.Text;
 
