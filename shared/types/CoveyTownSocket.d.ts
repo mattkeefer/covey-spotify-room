@@ -52,7 +52,11 @@ export interface Player {
   id: string;
   userName: string;
   location: PlayerLocation;
+  currentTrackName: string,
+  currentTrackHref: string,
 }
+
+
 
 export type XY = { x: number; y: number };
 

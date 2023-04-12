@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
 import { Player as PlayerModel, PlayerLocation } from '../types/CoveyTownSocket';
+// import { Track, Playlist } from '../types/CoveyTownSocket';
 
 export type PlayerEvents = {
   movement: (newLocation: PlayerLocation) => void;
@@ -20,11 +21,25 @@ export default class PlayerController extends (EventEmitter as new () => TypedEm
 
   public gameObjects?: PlayerGameObjects;
 
-  constructor(id: string, userName: string, location: PlayerLocation) {
+  public currentTrackText?: Phaser.GameObjects.Text;
+
+  private readonly _currentTrackName: string;
+
+  private readonly _currentTrackHref: string;
+
+  constructor(
+    id: string,
+    userName: string,
+    location: PlayerLocation,
+    currentTrackName: string,
+    currentTrackHref: string,
+  ) {
     super();
     this._id = id;
     this._userName = userName;
     this._location = location;
+    this._currentTrackName = currentTrackName;
+    this._currentTrackHref = currentTrackHref;
   }
 
   set location(newLocation: PlayerLocation) {
@@ -45,8 +60,22 @@ export default class PlayerController extends (EventEmitter as new () => TypedEm
     return this._id;
   }
 
+  get currentTrackName(): string {
+    return this._currentTrackName;
+  }
+
+  get currentTrackHref(): string {
+    return this._currentTrackHref;
+  }
+
   toPlayerModel(): PlayerModel {
-    return { id: this.id, userName: this.userName, location: this.location };
+    return {
+      id: this.id,
+      userName: this.userName,
+      location: this.location,
+      currentTrackName: this.currentTrackName,
+      currentTrackHref: this.currentTrackHref,
+    };
   }
 
   private _updateGameComponentLocation() {
@@ -67,6 +96,12 @@ export default class PlayerController extends (EventEmitter as new () => TypedEm
   }
 
   static fromPlayerModel(modelPlayer: PlayerModel): PlayerController {
-    return new PlayerController(modelPlayer.id, modelPlayer.userName, modelPlayer.location);
+    return new PlayerController(
+      modelPlayer.id,
+      modelPlayer.userName,
+      modelPlayer.location,
+      modelPlayer.currentTrackName,
+      modelPlayer.currentTrackHref,
+    );
   }
 }

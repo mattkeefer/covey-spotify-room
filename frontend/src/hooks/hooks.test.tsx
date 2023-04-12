@@ -145,7 +145,13 @@ describe('[T3] TownController-Dependent Hooks', () => {
 
       for (let i = 0; i < 10; i++) {
         players.push(
-          new PlayerController(nanoid(), nanoid(), { moving: false, rotation: 'back', x: 0, y: 1 }),
+          new PlayerController(
+            nanoid(),
+            nanoid(),
+            { moving: false, rotation: 'back', x: 0, y: 1 },
+            nanoid(),
+            nanoid(),
+          ),
         );
       }
 
@@ -374,7 +380,13 @@ describe('ConversationAreaController hooks', () => {
       testPlayers = [];
       for (let i = 0; i < 10; i++) {
         testPlayers.push(
-          new PlayerController(nanoid(), nanoid(), { moving: false, rotation: 'back', x: 0, y: 1 }),
+          new PlayerController(
+            nanoid(),
+            nanoid(),
+            { moving: false, rotation: 'back', x: 0, y: 1 },
+            nanoid(),
+            nanoid(),
+          ),
         );
       }
       conversationAreaController.occupants = [testPlayers[0], testPlayers[1], testPlayers[2]];
