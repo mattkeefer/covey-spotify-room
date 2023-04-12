@@ -8,7 +8,7 @@ import fs from 'fs/promises';
 import { MongoClient, ServerApiVersion } from 'mongodb';
 import { Server as SocketServer } from 'socket.io';
 import mongoose from 'mongoose';
-import { env } from 'process';
+import dotenv from 'dotenv';
 import { RegisterRoutes } from '../generated/routes';
 import TownsStore from './lib/TownsStore';
 import { ClientToServerEvents, ServerToClientEvents } from './types/CoveyTownSocket';
@@ -80,22 +80,23 @@ server.listen(process.env.PORT || 8081, () => {
 });
 
 // Establish a connection to the database
-const MONOGO_URI =
-  'mongodb+srv://mikeymundia:HiWcqPuJthaxp8Ct@convey-town.hjgrpb3.mongodb.net/?retryWrites=true&w=majority';
+dotenv.config();
 
-mongoose.connect(MONOGO_URI || 'mongodb://localhost/27017');
+const URI = process.env.MONGO_URI;
+console.log(process.env.MONGO_URI);
+
+mongoose.connect(URI || 'mongodb://localhost/27017');
 
 mongoose.connection.on('connected', () => {
   console.log('Connected to MongoDB');
 });
-
 mongoose.connection.on('error', err => {
   console.error(err);
 });
 
 // Song Schema
 const songSchema = new mongoose.Schema({
-  songID: String,
+  _id: String,
   songName: String,
   likeCount: Number,
   dislikeCount: Number,
@@ -108,7 +109,7 @@ const Song = mongoose.model('Song', songSchema);
 
 // Create a  dummy song
 const song = new Song({
-  songID: '123',
+  _id: '123',
   songName: 'Hello',
   likeCount: 0,
   dislikeCount: 0,
@@ -126,53 +127,51 @@ const song = new Song({
 
 // app GET endpoint
 app.get('/songs', async (req, res) => {
-  const songs = await Song.find();
-  res.send(songs);
+  const songsGet = await Song.find();
+  res.send(songsGet);
+});
+
+// app GET endpoint by id
+app.get('/songs/:id', async (req, res) => {
+  const songGetId = await Song.findById(req.params.id);
+  if (!songGetId) {
+    return res.status(404).send('Song not found');
+  }
+  return res.send(songGetId);
 });
 
 // app POST endpoint
 app.post('/songs', async (req, res) => {
-  const song2 = new Song({
-    songID: req.body.songID,
+  const songPost = new Song({
+    _id: req.body._id,
     songName: req.body.songName,
     likeCount: req.body.likeCount,
     dislikeCount: req.body.dislikeCount,
     comments: req.body.comments,
   });
-  await song2.save();
-  res.send(song2);
+  await songPost.save();
+  res.send(songPost);
 });
 
 // app PUT endpoint
 app.put('/songs/:id', async (req, res) => {
-  const song2 = await Song.findById(req.params.id);
-  if (!song2) return res.status(404).send('Song not found');
-  song2.set({
-    songID: req.body.songID,
+  const songPut = await Song.findById(req.params.id);
+  if (!songPut) {
+    return res.status(404).send('Song not found');
+  }
+  songPut.set({
+    _id: req.body._id,
     songName: req.body.songName,
     likeCount: req.body.likeCount,
     dislikeCount: req.body.dislikeCount,
     comments: req.body.comments,
   });
-  await song2.save();
-  res.send(song2);
+  await songPut.save();
+  return res.send(song);
 });
 
-// Save the song to the database
+// // Save dummy song to the database
 // song
 //   .save()
 //   .then(() => console.log('Song saved to the database'))
 //   .catch(err => console.error(err));
-
-// const client = new MongoClient(URI);
-
-// async function connectToDatabase() {
-//   try {
-//     await client.connect();
-//     console.log('Connected to MongoDB');
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
-
-// connectToDatabase();
