@@ -55,6 +55,7 @@ export default function NewSongAreaModal(): JSX.Element {
         id: newSongArea.name,
         like_count: 0,
         songs_playlist: playlistContents,
+        playlist_def: '',
       };
       try {
         await coveyTownController.createSongArea(songAreaToCreate);
@@ -109,11 +110,11 @@ export default function NewSongAreaModal(): JSX.Element {
           }}>
           <ModalBody pb={6}>
             <FormControl>
-              <FormLabel htmlFor='title'>Playlist name</FormLabel>
+              <FormLabel htmlFor='name'>Playlist name</FormLabel>
               <Input
-                id='title'
+                id='name'
                 placeholder='Add a name'
-                name='title'
+                name='name'
                 value={playlistName}
                 onChange={async e => {
                   setPlaylistName(e.target.value);
@@ -124,11 +125,11 @@ export default function NewSongAreaModal(): JSX.Element {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor='topic'>Playlist description</FormLabel>
+              <FormLabel htmlFor='playlist_def'>Playlist description</FormLabel>
               <Input
-                id='topic'
+                id='playlist_def'
                 placeholder='Add an optional description'
-                name='topic'
+                name='playlist_def'
                 value={playlistDescription}
                 onChange={e => setPlaylistDescription(e.target.value)}
               />
