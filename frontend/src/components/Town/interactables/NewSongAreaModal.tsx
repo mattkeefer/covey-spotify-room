@@ -44,9 +44,46 @@ export default function NewSongAreaModal(): JSX.Element {
   const toast = useToast();
 
   const createPlaylist = useCallback(async () => {
-    if ((playlistName && newSongArea) || (playlistName && newSongArea && playlistDescription)) {
+    if (playlistName && newSongArea && playlistDescription) {
       const playlistContents: Playlist = await coveyTownController.createNewPlaylistWithTopSongs(
         playlistName,
+        playlistDescription,
+      );
+      const songAreaToCreate: SongAreaModel = {
+        comments: [],
+        id: newSongArea.id,
+        like_count: 0,
+        songs_playlist: playlistContents,
+        playlist_def: '',
+      };
+      try {
+        await coveyTownController.createSongArea(songAreaToCreate);
+        toast({
+          title: 'Playlist Created!',
+          status: 'success',
+        });
+        setPlaylistName('');
+        coveyTownController.unPause();
+        closeModal();
+      } catch (err) {
+        if (err instanceof Error) {
+          toast({
+            title: 'Unable to create playlist',
+            description: err.toString(),
+            status: 'error',
+          });
+        } else {
+          console.trace(err);
+          toast({
+            title: 'Unexpected Error',
+            status: 'error',
+          });
+        }
+      }
+    } else if (playlistName && newSongArea) {
+      const playlistContents: Playlist = await coveyTownController.createNewPlaylistWithTopSongs(
+        playlistName,
+        '',
       );
       const songAreaToCreate: SongAreaModel = {
         comments: [],
