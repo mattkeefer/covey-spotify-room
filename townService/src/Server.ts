@@ -109,42 +109,42 @@ const songSchema = new mongoose.Schema({
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const Song = mongoose.model('Song', songSchema);
 
-// // Create a  dummy song
-// const song = new Song({
-//   songID: '123',
-//   songName: 'Hello',
-//   likeCount: 0,
-//   dislikeCount: 0,
-//   comments: [
-//     {
-//       username: 'mikey',
-//       commentText: 'Hello World',
-//     },
-//     {
-//       username: 'ronit',
-//       commentText: 'Hello Server',
-//     },
-//   ],
-// });
+// Create a  dummy song
+const song = new Song({
+  songID: '123',
+  songName: 'Hello',
+  likeCount: 0,
+  dislikeCount: 0,
+  comments: [
+    {
+      username: 'mikey',
+      commentText: 'Hello World',
+    },
+    {
+      username: 'ronit',
+      commentText: 'Hello Server',
+    },
+  ],
+});
 
-// // app GET endpoint
-// app.get('/songs', async (req, res) => {
-//   const songs = await Song.find();
-//   res.send(songs);
-// });
+// app GET endpoint
+app.get('/songs', async (req, res) => {
+  const songs = await Song.find();
+  res.send(songs);
+});
 
-// // app POST endpoint
-// app.post('/songs', async (req, res) => {
-//   const song2 = new Song({
-//     songID: req.body.songID,
-//     songName: req.body.songName,
-//     likeCount: req.body.likeCount,
-//     dislikeCount: req.body.dislikeCount,
-//     comments: req.body.comments,
-//   });
-//   await song2.save();
-//   res.send(song2);
-// });
+// app POST endpoint
+app.post('/songs', async (req, res) => {
+  const song2 = new Song({
+    songID: req.body.songID,
+    songName: req.body.songName,
+    likeCount: req.body.likeCount,
+    dislikeCount: req.body.dislikeCount,
+    comments: req.body.comments,
+  });
+  await song2.save();
+  res.send(song2);
+});
 
 // Save the song to the database
 // song
