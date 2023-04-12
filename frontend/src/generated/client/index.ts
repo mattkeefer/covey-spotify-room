@@ -9,13 +9,17 @@ export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
+export type { Comment } from './models/Comment';
 export type { ConversationArea } from './models/ConversationArea';
 export type { InvalidParametersError } from './models/InvalidParametersError';
+export type { Playlist } from './models/Playlist';
 export type { PosterSessionArea } from './models/PosterSessionArea';
+export type { SongArea } from './models/SongArea';
 export type { Town } from './models/Town';
 export type { TownCreateParams } from './models/TownCreateParams';
 export type { TownCreateResponse } from './models/TownCreateResponse';
 export type { TownSettingsUpdate } from './models/TownSettingsUpdate';
+export type { Track } from './models/Track';
 export type { ViewingArea } from './models/ViewingArea';
 
 export { TownsService } from './services/TownsService';
