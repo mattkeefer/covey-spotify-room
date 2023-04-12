@@ -1,6 +1,6 @@
 import { Box, Heading, ListItem, OrderedList } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { Track } from '../../types/CoveyTownSocket';
+import { Playlist, Track } from '../../types/CoveyTownSocket';
 import useTownController from '../../hooks/useTownController';
 
 /**
@@ -9,13 +9,22 @@ import useTownController from '../../hooks/useTownController';
 export default function SpotifyDataList(): JSX.Element {
   const townController = useTownController();
   const [topTracks, setTopTracks] = useState<Track[]>();
+  const [playlist, setPlaylist] = useState<Playlist>();
+
+  // useEffect(() => {
+  //   async function getTopTracks() {
+  //     const tracks = await townController.getSpotifyTopSongs();
+  //     setTopTracks(tracks);
+  //   }
+  //   getTopTracks();
+  // }, [townController]);
 
   useEffect(() => {
-    async function getTopTracks() {
-      const tracks = await townController.getSpotifyTopSongs();
-      setTopTracks(tracks);
+    async function createPlaylist() {
+      const playlistObj = await townController.createNewPlaylistWithTopSongs();
+      setPlaylist(playlistObj);
     }
-    getTopTracks();
+    createPlaylist();
   }, [townController]);
 
   return (
@@ -23,14 +32,23 @@ export default function SpotifyDataList(): JSX.Element {
       <Heading as='h2' fontSize='l'>
         Spotify top songs
       </Heading>
-      <OrderedList>
+      {playlist && (
+        <iframe
+          src={`https://open.spotify.com/embed/playlist/${playlist?.id}?utm_source=generator&theme=0`}
+          width='100%'
+          height='352'
+          frameBorder='0'
+          allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'
+          loading='lazy'></iframe>
+      )}
+      {/* <OrderedList>
         {topTracks &&
           topTracks.map(track => (
             <ListItem key={track.id}>
               {track.name} by {track.artists[0]}
             </ListItem>
           ))}
-      </OrderedList>
+      </OrderedList> */}
     </Box>
   );
 }
