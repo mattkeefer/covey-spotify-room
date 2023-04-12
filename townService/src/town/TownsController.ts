@@ -27,6 +27,7 @@ import {
 } from '../types/CoveyTownSocket';
 import PosterSessionAreaReal from './PosterSessionArea';
 import { isPosterSessionArea } from '../TestUtils';
+import SongAreaReal from './SongArea';
 
 /**
  * This is the town route
@@ -336,5 +337,53 @@ export class TownsController extends Controller {
       isPubliclyListed: town.isPubliclyListed,
       interactables: town.interactables.map(eachInteractable => eachInteractable.toModel()),
     });
+  }
+
+  /**
+   * Increment the likes of a given track in a song area in a given town, as long as there is
+   * a playlist and current song. Returns the new number of likes.
+   *
+   * @param townID ID of the town in which to get the poster session area image contents
+   * @param songAreaID interactable ID of the song area session
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          poster session specified does not exist, or if the poster session specified
+   *          does not have an image
+   */
+  @Patch('{townID}/{songAreaID}/incLikes')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async incrementSongAreaLikes(
+    @Path() townID: string,
+    @Path() songAreaID: string,
+    @Header('X-Session-Token') sessionToken: string,
+  ): Promise<number> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    const songArea = curTown.getInteractable(songAreaID) as SongAreaReal;
+    if (!songArea) {
+      throw new InvalidParametersError('Invalid song area ID');
+    }
+    if (!songArea.getSongsPlaylist || !songArea.getCurrentSong) {
+      throw new InvalidParametersError('Cant like a song with no playlist or current song');
+    }
+    const oldLikes = songArea.getLikeCount();
+    const newLikes = oldLikes + 1;
+    const updatedSongArea = {
+      id: songArea.id,
+      curr_song: songArea.getCurrentSong(),
+      like_count: newLikes,
+      comments: songArea.getComments(),
+      songs_playlist: songArea.getSongsPlaylist(),
+      playlist_def: songArea.getPlaylistDescription(),
+    };
+    (<SongAreaReal>songArea).updateModel(updatedSongArea);
+    return newLikes;
   }
 }

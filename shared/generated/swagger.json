@@ -832,6 +832,68 @@
 					}
 				]
 			}
+		},
+		"/towns/{townID}/{songAreaID}/incLikes": {
+			"patch": {
+				"operationId": "IncrementSongAreaLikes",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "number",
+									"format": "double"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid values specified",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidParametersError"
+								}
+							}
+						}
+					}
+				},
+				"description": "Increment the likes of a given track in a song area in a given town, as long as there is\na playlist and current song. Returns the new number of likes.",
+				"tags": [
+					"towns"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "ID of the town in which to get the poster session area image contents",
+						"in": "path",
+						"name": "townID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "interactable ID of the song area session",
+						"in": "path",
+						"name": "songAreaID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
+						"in": "header",
+						"name": "X-Session-Token",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
 		}
 	},
 	"servers": [
