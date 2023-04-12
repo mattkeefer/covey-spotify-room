@@ -253,6 +253,14 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     return id;
   }
 
+  public get playlist() {
+    return this._playlist;
+  }
+
+  private set _playlist(playlist: Playlist) {
+    this._playlist = playlist;
+  }
+
   public get townIsPubliclyListed() {
     return this._townIsPubliclyListedInternal;
   }
@@ -719,13 +727,6 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     } else {
       const newController = new SongAreaController({
         id: songArea.name,
-        curr_song: {
-          artists: [],
-          href: '',
-          id: '',
-          name: songArea.defaultTitle,
-          uri: '',
-        },
         comments: [],
         like_count: 0,
         songs_playlist: undefined,
@@ -838,7 +839,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    * @returns the spotify playlist that was created
    */
   public async createSpotifyPlaylist(): Promise<Playlist> {
-    const response = await this._spotifyApi.playlists.createPlaylist('mknexus8', 'Covey Town', {
+    const user = (await this._spotifyApi.users.getMe()).id;
+    const response = await this._spotifyApi.playlists.createPlaylist(user, 'Covey Town', {
       public: false,
       collaborative: true,
     });
@@ -874,11 +876,11 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   /**
    * Create a new spotify playlist and add the player's top 5 spotify tracks
    */
-  public async createNewPlaylistWithTopSongs(): Promise<Playlist> {
+  public async initializePlaylist(): Promise<void> {
     const playlist = await this.createSpotifyPlaylist();
     const tracks = await this.getSpotifyTopSongs();
-    this.addTracksToPlaylist(tracks, playlist);
-    return playlist;
+    await this.addTracksToPlaylist(tracks, playlist);
+    this._playlist = playlist;
   }
 
   /**
