@@ -38,11 +38,11 @@ describe('Town Settings Panel', () => {
     isPubliclyListed: boolean;
     townID: string;
   }) => {
-    mockedTownController = mockTownController({
-      friendlyName: params.friendlyName,
-      townID: params.townID,
-      townIsPubliclyListed: params.isPubliclyListed,
-    });
+    // mockedTownController = mockTownController({
+    //   friendlyName: params.friendlyName,
+    //   townID: params.townID,
+    //   townIsPubliclyListed: params.isPubliclyListed,
+    // });
 
     renderData = render(
       <ChakraProvider>

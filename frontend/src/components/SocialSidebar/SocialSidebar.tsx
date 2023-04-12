@@ -3,8 +3,13 @@ import React from 'react';
 import ConversationAreasList from './ConversationAreasList';
 import PlayersList from './PlayersList';
 import SpotifyDataTest from './SpotifyDataList';
+import useTownController from '../../hooks/useTownController';
+import { SongArea } from '../../types/CoveyTownSocket';
+import SongAreaController from '../../classes/SongAreaController';
+import { useSongAreaController } from '../../classes/TownController';
 
 export default function SocialSidebar(): JSX.Element {
+  const townController = useSongAreaController();
   return (
     <VStack
       align='left'
@@ -21,7 +26,7 @@ export default function SocialSidebar(): JSX.Element {
       </Heading>
       <PlayersList />
       <ConversationAreasList />
-      <SpotifyDataTest />
+      <SpotifyDataTest controller={townController} />
     </VStack>
   );
 }

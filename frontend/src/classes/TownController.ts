@@ -9,7 +9,7 @@ import ViewingArea from '../components/Town/interactables/ViewingArea';
 import SongArea from '../components/Town/interactables/SongArea';
 import PosterSesssionArea from '../components/Town/interactables/PosterSessionArea';
 import { LoginController } from '../contexts/LoginControllerContext';
-import { TownsService, TownsServiceClient } from '../generated/client';
+import { InvalidParametersError, TownsService, TownsServiceClient } from '../generated/client';
 import useTownController from '../hooks/useTownController';
 import {
   ChatMessage,
@@ -116,12 +116,12 @@ export type TownEvents = {
 /**
  * The (frontend) TownController manages the communication between the frontend
  * and the backend. When a player join a town, a new TownController is created,
- * and frontend components can register to receive events (@see CoveyTownEvents).
+ * and frontend components can register to receive events (@see CoveyTownEvents ).
  *
  * To access the TownController from a React component, use the
- * useTownController hook (@see useTownController). While the town controller
+ * useTownController hook (@see useTownController ). While the town controller
  * can be directly used by React components, it is generally preferable to use the various hooks
- * defined in this file (e.g. @see usePlayers, @see useConversationAreas), which will automatically
+ * defined in this file (e.g. @see usePlayers, @see useConversationAreas ), which will automatically
  * subscribe to updates to their respective data, triggering the React component that consumes them
  * to re-render when the underlying data changes.
  *
@@ -459,7 +459,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
      * a conversationAreasChagned event to listeners of this TownController.
      *
      * If the update changes properties of the interactable, the interactable is also expected to emit its own
-     * events (@see ViewingAreaController and @see ConversationAreaController and @see SongAreaController and @see PosterSessionAreaController)
+     * events (@see ViewingAreaController and @see ConversationAreaController and @see SongAreaController and @see PosterSessionAreaController
      */
     this._socket.on('interactableUpdate', interactable => {
       if (isConversationArea(interactable)) {
@@ -491,6 +491,9 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       }
     });
   }
+  // _playersByIDs(occupantsByID: string[]): PlayerController[] {
+  //   throw new Error('Method not implemented.');
+  // }
 
   /**
    * Emit a movement event for the current player, updating the state locally and
@@ -792,6 +795,28 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       this.sessionToken,
     );
   }
+
+  /**
+   * Increment the number of stars for a specified poster session area (specified via poster session area controller)
+   * @param posterSessionArea the poster session area controller
+   * @returns a promise wrapping the new number of stars the poster has
+   */
+  public async incrementSongAreaLikes(songArea: SongAreaController): Promise<number> {
+    return this._townsService.incrementSongAreaLikes(this.townID, songArea.id, this.sessionToken);
+  }
+  /**
+   * Increment the likes of a given track in a song area in a given town, as long as there is
+   * a playlist and current song. Returns the new number of likes.
+   *
+   * @param townID ID of the town in which to get the poster session area image contents
+   * @param songAreaID interactable ID of the song area session
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          poster session specified does not exist, or if the poster session specified
+   *          does not have an image
+   */
 
   /**
    * Get top spotify tracks of player
@@ -1117,3 +1142,30 @@ export function usePlayersInVideoCall(): PlayerController[] {
   }, [townController, setPlayersInCall]);
   return playersInCall;
 }
+// function Patch(arg0: string): (target: (townID: string, songAreaID: string, getSpotifyTopSongs: any) => any, context: ClassMethodDecoratorContext<TownController, (townID: string, songAreaID: string, getSpotifyTopSongs: any) => any> & { ...; }) => void | ((townID: string, songAreaID: string, getSpotifyTopSongs: any) => any) {
+//   throw new Error('Function not implemented.');
+// }
+
+// function Path() {
+//   throw new Error('Function not implemented.');
+// }
+
+// function addTracksToPlaylist(tracks: any, arg1: any, playlist: any, Playlist: any) {
+//   throw new Error('Function not implemented.');
+// }
+
+// function createSpotifyPlaylist() {
+//   throw new Error('Function not implemented.');
+// }
+
+// function createNewPlaylistWithTopSongs() {
+//   throw new Error('Function not implemented.');
+// }
+
+// function nearbyPlayers() {
+//   throw new Error('Function not implemented.');
+// }
+
+// function _playersByIDs(playerIDs: any, arg1: any) {
+//   throw new Error('Function not implemented.');
+// }
