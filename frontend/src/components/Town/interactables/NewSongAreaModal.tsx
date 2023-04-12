@@ -20,11 +20,10 @@ import useTownController from '../../../hooks/useTownController';
 
 export default function NewSongAreaModal(): JSX.Element {
   const coveyTownController = useTownController();
-  const newSongArea = useInteractable('songArea');
+  const newSongArea: SongArea | undefined = useInteractable('songArea');
 
   const [playlistName, setPlaylistName] = useState<string>('');
   const [playlistDescription, setPlaylistDescription] = useState<string>('');
-  const [playlistContents, setPlaylistContents] = useState<Playlist | undefined>(undefined);
 
   const isOpen = newSongArea !== undefined;
 
@@ -45,14 +44,11 @@ export default function NewSongAreaModal(): JSX.Element {
   const toast = useToast();
 
   const createPlaylist = useCallback(async () => {
-    if (
-      (playlistName && newSongArea && playlistContents) ||
-      (playlistName && newSongArea && playlistContents && playlistDescription)
-    ) {
-      console.log('playlistContents: ' + playlistContents);
+    if ((playlistName && newSongArea) || (playlistName && newSongArea && playlistDescription)) {
+      const playlistContents: Playlist = await coveyTownController.createNewPlaylistWithTopSongs();
       const songAreaToCreate: SongAreaModel = {
         comments: [],
-        id: newSongArea.name,
+        id: newSongArea.id,
         like_count: 0,
         songs_playlist: playlistContents,
         playlist_def: '',
@@ -82,15 +78,7 @@ export default function NewSongAreaModal(): JSX.Element {
         }
       }
     }
-  }, [
-    playlistName,
-    playlistContents,
-    setPlaylistName,
-    coveyTownController,
-    newSongArea,
-    closeModal,
-    toast,
-  ]);
+  }, [playlistName, newSongArea, playlistDescription, coveyTownController, toast, closeModal]);
 
   return (
     <Modal
@@ -118,9 +106,6 @@ export default function NewSongAreaModal(): JSX.Element {
                 value={playlistName}
                 onChange={async e => {
                   setPlaylistName(e.target.value);
-                  const newPlaylist = await coveyTownController.createNewPlaylistWithTopSongs();
-                  setPlaylistContents(newPlaylist);
-                  console.log('playlistContents: ' + playlistContents);
                 }}
               />
             </FormControl>

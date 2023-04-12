@@ -71,6 +71,7 @@ export default function TownSelection(): JSX.Element {
       'user-top-read',
       'playlist-read-collaborative',
       'playlist-modify-public',
+      'playlist-modify-private',
     ],
   });
 
@@ -107,8 +108,8 @@ export default function TownSelection(): JSX.Element {
     });
   }, [setCurrentPublicTowns, townsService]);
   useEffect(() => {
-    updateTownListings();
     getSpotifyAccount();
+    updateTownListings();
     const timer = setInterval(updateTownListings, 2000);
     return () => {
       clearInterval(timer);

@@ -839,7 +839,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    */
   public async createSpotifyPlaylist(): Promise<Playlist> {
     const response = await this._spotifyApi.playlists.createPlaylist('mknexus8', 'Covey Town', {
-      public: true,
+      public: false,
       collaborative: true,
     });
     const playlist = {
