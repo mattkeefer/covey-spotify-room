@@ -879,7 +879,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   public async initializePlaylist(): Promise<void> {
     const playlist = await this.createSpotifyPlaylist();
     const tracks = await this.getSpotifyTopSongs();
-    await this.addTracksToPlaylist(tracks, playlist);
+    this.addTracksToPlaylist(tracks, playlist);
     this._playlist = playlist;
   }
 
