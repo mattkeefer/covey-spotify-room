@@ -7,6 +7,8 @@ export default class SongArea extends Interactable {
 
   private _isInteracting = false;
 
+  private _textBoxContent?: Phaser.GameObjects.Text;
+
   public get defaultTitle() {
     if (!this._defaultTitle) {
       return 'No title found';
@@ -36,6 +38,20 @@ export default class SongArea extends Interactable {
       throw new Error('Should not be able to overlap with this interactable before added to scene');
     }
     const location = this.townController.ourPlayer.location;
+    if (this.townController.ourPlayer.currentTrackName !== undefined) {
+      this._textBoxContent = this.scene.add.text(
+        location.x,
+        location.y - 40,
+        this.townController.ourPlayer.currentTrackName,
+        {
+          font: '18px monospace',
+          color: '#000000',
+          // padding: {x: 20, y: 10},
+          backgroundColor: '#ffffff',
+        },
+      );
+      this._textBoxContent.setVisible(true);
+    }
     this._labelText.setX(location.x);
     this._labelText.setY(location.y);
     this._labelText.setVisible(true);

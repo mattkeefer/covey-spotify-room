@@ -11,6 +11,7 @@ export type PlayerGameObjects = {
   sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   label: Phaser.GameObjects.Text;
   locationManagedByGameScene: boolean /* For the local player, the game scene will calculate the current location, and we should NOT apply updates when we receive events */;
+  textbox: Phaser.GameObjects.Text;
 };
 export default class PlayerController extends (EventEmitter as new () => TypedEmitter<PlayerEvents>) {
   private _location: PlayerLocation;
@@ -80,12 +81,14 @@ export default class PlayerController extends (EventEmitter as new () => TypedEm
 
   private _updateGameComponentLocation() {
     if (this.gameObjects && !this.gameObjects.locationManagedByGameScene) {
-      const { sprite, label } = this.gameObjects;
+      const { sprite, label, textbox } = this.gameObjects;
       if (!sprite.anims) return;
       sprite.setX(this.location.x);
       sprite.setY(this.location.y);
       label.setX(this.location.x);
       label.setY(this.location.y - 20);
+      textbox.setX(this.location.x);
+      textbox.setY(this.location.y - 40);
       if (this.location.moving) {
         sprite.anims.play(`misa-${this.location.rotation}-walk`, true);
       } else {
