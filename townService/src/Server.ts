@@ -143,6 +143,21 @@ app.post('/songs', async (req, res) => {
   res.send(song2);
 });
 
+// app PUT endpoint
+app.put('/songs/:id', async (req, res) => {
+  const song2 = await Song.findById(req.params.id);
+  if (!song2) return res.status(404).send('Song not found');
+  song2.set({
+    songID: req.body.songID,
+    songName: req.body.songName,
+    likeCount: req.body.likeCount,
+    dislikeCount: req.body.dislikeCount,
+    comments: req.body.comments,
+  });
+  await song2.save();
+  res.send(song2);
+});
+
 // Save the song to the database
 // song
 //   .save()
