@@ -593,7 +593,7 @@ describe('TownController', () => {
       expect(spotifySpy).toBeCalledTimes(1);
       expect(spotifySpy).toBeCalledWith('mknexus8', 'Covey Town', {
         collaborative: true,
-        public: true,
+        public: false,
       });
     });
     it('Can add tracks to a playlist', async () => {
@@ -630,7 +630,7 @@ describe('TownController', () => {
       expect(spotifySpy1).toBeCalledTimes(2);
       expect(spotifySpy1).toBeCalledWith('mknexus8', 'Covey Town', {
         collaborative: true,
-        public: true,
+        public: false,
       });
       expect(spotifySpy2).toBeCalledTimes(1);
       expect(spotifySpy2).toBeCalledWith(
