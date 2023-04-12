@@ -9,6 +9,7 @@ export type PlayerEvents = {
 export type PlayerGameObjects = {
   sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   label: Phaser.GameObjects.Text;
+  textbox: Phaser.GameObjects.Text;
   locationManagedByGameScene: boolean /* For the local player, the game scene will calculate the current location, and we should NOT apply updates when we receive events */;
 };
 export default class PlayerController extends (EventEmitter as new () => TypedEmitter<PlayerEvents>) {
@@ -18,13 +19,18 @@ export default class PlayerController extends (EventEmitter as new () => TypedEm
 
   private readonly _userName: string;
 
+  public textbox?: Phaser.GameObjects.Text;
+
+  private readonly _currentSong: string;
+
   public gameObjects?: PlayerGameObjects;
 
-  constructor(id: string, userName: string, location: PlayerLocation) {
+  constructor(id: string, userName: string, location: PlayerLocation, currentSong: string) {
     super();
     this._id = id;
     this._userName = userName;
     this._location = location;
+    this._currentSong = currentSong;
   }
 
   set location(newLocation: PlayerLocation) {
@@ -45,8 +51,12 @@ export default class PlayerController extends (EventEmitter as new () => TypedEm
     return this._id;
   }
 
+  get currentSong(): string {
+    return this._currentSong;
+  }
+
   toPlayerModel(): PlayerModel {
-    return { id: this.id, userName: this.userName, location: this.location };
+    return { id: this.id, userName: this.userName, location: this.location, currentSong: this.currentSong };
   }
 
   private _updateGameComponentLocation() {
@@ -67,6 +77,6 @@ export default class PlayerController extends (EventEmitter as new () => TypedEm
   }
 
   static fromPlayerModel(modelPlayer: PlayerModel): PlayerController {
-    return new PlayerController(modelPlayer.id, modelPlayer.userName, modelPlayer.location);
+    return new PlayerController(modelPlayer.id, modelPlayer.userName, modelPlayer.location, modelPlayer.currentSong);
   }
 }

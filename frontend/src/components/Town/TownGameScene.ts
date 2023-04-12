@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import PlayerController from '../../classes/PlayerController';
 import TownController from '../../classes/TownController';
-import { PlayerLocation } from '../../types/CoveyTownSocket';
+import { PlayerLocation, SpotifyData } from '../../types/CoveyTownSocket';
 import { Callback } from '../VideoCall/VideoFrontend/types';
 import Interactable from './Interactable';
 import ConversationArea from './interactables/ConversationArea';
@@ -9,6 +9,7 @@ import Transporter from './interactables/Transporter';
 import ViewingArea from './interactables/ViewingArea';
 import PosterSessionArea from './interactables/PosterSessionArea';
 import SongArea from './interactables/SongArea';
+import SongAreaController from '../../classes/SongAreaController';
 
 // Still not sure what the right type is here... "Interactable" doesn't do it
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -58,6 +59,8 @@ export default class TownGameScene extends Phaser.Scene {
   private _ready = false;
 
   private _paused = false;
+
+  private _spotifyData?: SpotifyData;
 
   public coveyTownController: TownController;
 
@@ -136,6 +139,9 @@ export default class TownGameScene extends Phaser.Scene {
   updatePlayers(players: PlayerController[]) {
     //Make sure that each player has sprites
     players.map(eachPlayer => this.createPlayerSprites(eachPlayer));
+    players.forEach(p => {
+      this._spotifyData = { currentSong: p.currentSong || 'None' };
+    });
 
     // Remove disconnected players from board
     const disconnectedPlayers = this._players.filter(
@@ -406,9 +412,18 @@ export default class TownGameScene extends Phaser.Scene {
         backgroundColor: '#ffffff',
       })
       .setDepth(6);
+    const textbox = this.add
+      .text(spawnPoint.x, spawnPoint.y - 40, 'None', {
+        font: '18px monospace',
+        color: '#000000',
+        // padding: {x: 20, y: 10},
+        backgroundColor: '#ffffff',
+      })
+      .setDepth(6);
     this.coveyTownController.ourPlayer.gameObjects = {
       sprite,
       label,
+      textbox,
       locationManagedByGameScene: true,
     };
 
@@ -513,9 +528,21 @@ export default class TownGameScene extends Phaser.Scene {
           backgroundColor: '#ffffff',
         },
       );
+      const textbox = this.add.text(
+        player.location.x,
+        player.location.y - 40,
+        player === this.coveyTownController.ourPlayer ? 'None' : player.currentSong,
+        {
+          font: '18px monospace',
+          color: '#000000',
+          // padding: {x: 20, y: 10},
+          backgroundColor: '#ffffff',
+        },
+      );
       player.gameObjects = {
         sprite,
         label,
+        textbox,
         locationManagedByGameScene: false,
       };
     }

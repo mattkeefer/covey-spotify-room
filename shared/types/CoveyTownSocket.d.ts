@@ -52,8 +52,12 @@ export interface Player {
   id: string;
   userName: string;
   location: PlayerLocation;
+  currentSong: string;
 }
 
+export type SpotifyData = {
+  currentSong: string;
+}
 export type XY = { x: number; y: number };
 
 export type Comment = { username: string; commentText: string };
