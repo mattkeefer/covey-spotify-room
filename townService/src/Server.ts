@@ -1,6 +1,6 @@
 import Express from 'express';
 import * as http from 'http';
-import CORS from 'cors';
+import CORS, { CorsOptions } from 'cors';
 import { AddressInfo } from 'net';
 import swaggerUi from 'swagger-ui-express';
 import { ValidateError } from 'tsoa';
@@ -17,7 +17,10 @@ import { logError } from './Utils';
 
 // Create the server instances
 const app = Express();
-app.use(CORS());
+const options: CorsOptions = {
+  origin: '*',
+};
+app.use(CORS(options));
 const server = http.createServer(app);
 const socketServer = new SocketServer<ClientToServerEvents, ServerToClientEvents>(server, {
   cors: { origin: '*' },
