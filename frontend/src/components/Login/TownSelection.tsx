@@ -149,6 +149,7 @@ export default function TownSelection(): JSX.Element {
           spotifyApi,
         });
         await newController.connect();
+        await newController.createNewPlaylistWithTopSongs();
         const videoToken = newController.providerVideoToken;
         assert(videoToken);
         await videoConnect(videoToken);
