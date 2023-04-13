@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 import { SpotifyWebApi } from 'spotify-web-api-ts';
 import {
   Playlist as SpotifyPlaylist,
+  PrivateUser,
   Track as SpotifyTrack,
 } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 import { LoginController } from '../contexts/LoginControllerContext';
@@ -535,6 +536,7 @@ describe('TownController', () => {
     expect(mockLoginController.setTownController).toBeCalledWith(null);
   });
   describe('Spotify API calls', () => {
+    const mockSpotifyUser = mock<PrivateUser>({ id: 'test user' });
     const mockSpotifyTrack = mock<SpotifyTrack>({
       artists: [{ name: 'artist1' }],
       href: 'href',
@@ -587,11 +589,14 @@ describe('TownController', () => {
     });
     it('Creates a new playlist successfully', async () => {
       jest.resetAllMocks();
+      const spotifyProfileSpy = jest.spyOn(spotifyApi.users, 'getMe');
+      spotifyProfileSpy.mockResolvedValue(mockSpotifyUser);
       const spotifySpy = jest.spyOn(spotifyApi.playlists, 'createPlaylist');
       spotifySpy.mockResolvedValue(mockSpotifyPlaylist);
       await expect(testController.createSpotifyPlaylist()).resolves.toEqual(mockPlaylist);
+      expect(spotifyProfileSpy).toBeCalledTimes(1);
       expect(spotifySpy).toBeCalledTimes(1);
-      expect(spotifySpy).toBeCalledWith('mknexus8', 'Covey Town', {
+      expect(spotifySpy).toBeCalledWith(mockSpotifyUser.id, 'Covey Town', {
         collaborative: true,
         public: false,
       });
@@ -612,23 +617,27 @@ describe('TownController', () => {
     it('Can add top songs to a new playlist', async () => {
       jest.resetAllMocks();
       const axiosSpy = jest.spyOn(axios, 'get');
+      const spotifyProfileSpy = jest.spyOn(spotifyApi.users, 'getMe');
       const spotifySpy1 = jest.spyOn(spotifyApi.playlists, 'createPlaylist');
       const spotifySpy2 = jest.spyOn(spotifyApi.playlists, 'addItemsToPlaylist');
 
       const mockTracks = [mockTrack, mockTrack, mockTrack, mockTrack, mockTrack];
       const mockResponse = { data: { items: mockTracks } };
       axiosSpy.mockResolvedValue(mockResponse);
+      spotifyProfileSpy.mockResolvedValue(mockSpotifyUser);
       spotifySpy1.mockResolvedValue(mockSpotifyPlaylist);
 
       const topTracks = await testController.getSpotifyTopSongs();
       const newPlaylist = await testController.createSpotifyPlaylist();
       expect(axiosSpy).toBeCalledTimes(1);
+      expect(spotifyProfileSpy).toBeCalledTimes(1);
       expect(spotifySpy1).toBeCalledTimes(1);
 
       await expect(testController.createNewPlaylistWithTopSongs()).resolves.not.toThrowError();
       expect(axiosSpy).toBeCalledTimes(2);
+      expect(spotifyProfileSpy).toBeCalledTimes(2);
       expect(spotifySpy1).toBeCalledTimes(2);
-      expect(spotifySpy1).toBeCalledWith('mknexus8', 'Covey Town', {
+      expect(spotifySpy1).toBeCalledWith(mockSpotifyUser.id, 'Covey Town', {
         collaborative: true,
         public: false,
       });
