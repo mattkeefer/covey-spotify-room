@@ -625,7 +625,7 @@ describe('TownController', () => {
       expect(axiosSpy).toBeCalledTimes(1);
       expect(spotifySpy1).toBeCalledTimes(1);
 
-      await expect(testController.initializePlaylist()).resolves.not.toThrowError();
+      await expect(testController.createNewPlaylistWithTopSongs()).resolves.not.toThrowError();
       expect(axiosSpy).toBeCalledTimes(2);
       expect(spotifySpy1).toBeCalledTimes(2);
       expect(spotifySpy1).toBeCalledWith('mknexus8', 'Covey Town', {
