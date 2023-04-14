@@ -1,15 +1,12 @@
+import { Comment, Track, Playlist } from '../../../types/CoveyTownSocket';
+
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Comment } from './Comment';
-import type { Playlist } from './Playlist';
-import type { Track } from './Track';
-
 export type SongArea = {
-    id: string;
     curr_song?: Track;
-    comments?: Array<Comment>;
+    comments?: Comment[];
     like_count: number;
     songs_playlist?: Playlist;
     playlist_def?: string;

@@ -368,7 +368,7 @@ export default class Town {
    */
   public addSongArea(songArea: SongAreaModel): boolean {
     // if there's no playlist or song specified
-    if (!songArea.songs_playlist) {
+    if (!songArea.songs_playlist || !songArea.curr_song) {
       return false;
     }
     // find an existing song session area with the same ID
@@ -377,7 +377,10 @@ export default class Town {
     );
     // if the id does not match an existing area, or if it does but the existing area
     // already has an image and title
-    if (!existingSongArea || existingSongArea.getSongsPlaylist()) {
+    if (
+      !existingSongArea ||
+      (existingSongArea.getSongsPlaylist() && existingSongArea.getCurrentSong())
+    ) {
       return false;
     }
     // we've reached here -- it's a valid update
