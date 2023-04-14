@@ -7,7 +7,7 @@
 		"responses": {},
 		"schemas": {
 			"Town": {
-				"description": "The public-facing model that represents a town. More information about the town\r\nis available for users who join it.",
+				"description": "The public-facing model that represents a town. More information about the town\nis available for users who join it.",
 				"properties": {
 					"friendlyName": {
 						"type": "string",
@@ -65,11 +65,11 @@
 					},
 					"isPubliclyListed": {
 						"type": "boolean",
-						"description": "Players will identify towns by either knowing the (randomly generated) town ID, or the town ID will be publicly\r\nlisted along wiht the friendly name of the town. This behavior can be controlled when creating the town by changing\r\nthis flag."
+						"description": "Players will identify towns by either knowing the (randomly generated) town ID, or the town ID will be publicly\nlisted along wiht the friendly name of the town. This behavior can be controlled when creating the town by changing\nthis flag."
 					},
 					"mapFile": {
 						"type": "string",
-						"description": "Reserved for future use, currently only used for testing: this parameter can be\r\nspecified to control which Tiled map file is used for initializing the set of interactable areas\r\n\r\nNot currently used on frontend"
+						"description": "Reserved for future use, currently only used for testing: this parameter can be\nspecified to control which Tiled map file is used for initializing the set of interactable areas\n\nNot currently used on frontend"
 					}
 				},
 				"required": [
@@ -168,6 +168,129 @@
 				"required": [
 					"id",
 					"stars"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Track": {
+				"properties": {
+					"uri": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"id": {
+						"type": "string"
+					},
+					"href": {
+						"type": "string"
+					},
+					"artists": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"uri",
+					"name",
+					"id",
+					"href",
+					"artists"
+				],
+				"type": "object"
+			},
+			"Comment": {
+				"properties": {
+					"commentText": {
+						"type": "string"
+					},
+					"username": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"commentText",
+					"username"
+				],
+				"type": "object"
+			},
+			"Playlist": {
+				"properties": {
+					"uri": {
+						"type": "string"
+					},
+					"tracks": {
+						"items": {
+							"$ref": "#/components/schemas/Track"
+						},
+						"type": "array"
+					},
+					"owner": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"images": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"id": {
+						"type": "string"
+					},
+					"href": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string",
+						"nullable": true
+					}
+				},
+				"required": [
+					"uri",
+					"tracks",
+					"owner",
+					"name",
+					"images",
+					"id",
+					"href",
+					"description"
+				],
+				"type": "object"
+			},
+			"SongArea": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"curr_song": {
+						"$ref": "#/components/schemas/Track"
+					},
+					"comments": {
+						"items": {
+							"$ref": "#/components/schemas/Comment"
+						},
+						"type": "array"
+					},
+					"like_count": {
+						"type": "number",
+						"format": "double"
+					},
+					"songs_playlist": {
+						"$ref": "#/components/schemas/Playlist"
+					},
+					"playlist_def": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"like_count"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -450,7 +573,7 @@
 						}
 					},
 					{
-						"description": "session token of the player making the request, must\r\nmatch the session token returned when the player joined the town",
+						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
 						"in": "header",
 						"name": "X-Session-Token",
 						"required": true,
@@ -507,7 +630,7 @@
 						}
 					},
 					{
-						"description": "session token of the player making the request, must\r\nmatch the session token returned when the player joined the town",
+						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
 						"in": "header",
 						"name": "X-Session-Token",
 						"required": true,
@@ -524,6 +647,63 @@
 							"schema": {
 								"$ref": "#/components/schemas/PosterSessionArea",
 								"description": "The new poster session area to create"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/towns/{townID}/songArea": {
+			"post": {
+				"operationId": "CreateSongArea",
+				"responses": {
+					"204": {
+						"description": "No content"
+					},
+					"400": {
+						"description": "Invalid values specified",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidParametersError"
+								}
+							}
+						}
+					}
+				},
+				"description": "Creates a viewing area in a given town",
+				"tags": [
+					"towns"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "ID of the town in which to create the new viewing area",
+						"in": "path",
+						"name": "townID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
+						"in": "header",
+						"name": "X-Session-Token",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "The new viewing area to create",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SongArea",
+								"description": "The new viewing area to create"
 							}
 						}
 					}
@@ -580,7 +760,7 @@
 						}
 					},
 					{
-						"description": "session token of the player making the request, must\r\nmatch the session token returned when the player joined the town",
+						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
 						"in": "header",
 						"name": "X-Session-Token",
 						"required": true,
@@ -617,7 +797,7 @@
 						}
 					}
 				},
-				"description": "Increment the stars of a given poster session area in a given town, as long as there is\r\na poster image. Returns the new number of stars.",
+				"description": "Increment the stars of a given poster session area in a given town, as long as there is\na poster image. Returns the new number of stars.",
 				"tags": [
 					"towns"
 				],
@@ -642,7 +822,7 @@
 						}
 					},
 					{
-						"description": "session token of the player making the request, must\r\nmatch the session token returned when the player joined the town",
+						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
 						"in": "header",
 						"name": "X-Session-Token",
 						"required": true,

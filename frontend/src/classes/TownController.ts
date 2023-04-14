@@ -871,7 +871,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   /**
    * Create a new spotify playlist and add the player's top 5 spotify tracks
    */
-  public async createNewPlaylistWithTopSongs(): Promise<Playlist> {
+  public async initializePlaylist(): Promise<void> {
     const playlist = await this.createSpotifyPlaylist();
     const tracks = await this.getSpotifyTopSongs();
     this.addTracksToPlaylist(tracks, playlist);
