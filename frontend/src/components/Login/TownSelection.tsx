@@ -71,7 +71,6 @@ export default function TownSelection(): JSX.Element {
       'user-top-read',
       'playlist-read-collaborative',
       'playlist-modify-public',
-      'playlist-modify-private',
     ],
   });
 
