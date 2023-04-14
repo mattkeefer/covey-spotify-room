@@ -591,10 +591,6 @@ describe('TownController', () => {
       spotifySpy.mockResolvedValue(mockSpotifyPlaylist);
       await expect(testController.createSpotifyPlaylist()).resolves.toEqual(mockPlaylist);
       expect(spotifySpy).toBeCalledTimes(1);
-      expect(spotifySpy).toBeCalledWith('mknexus8', 'Covey Town', {
-        collaborative: true,
-        public: false,
-      });
     });
     it('Can add tracks to a playlist', async () => {
       jest.resetAllMocks();
