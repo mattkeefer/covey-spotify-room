@@ -36,7 +36,6 @@ import PosterSessionAreaController from './PosterSessionAreaController';
 import { SpotifyWebApi } from 'spotify-web-api-ts/types';
 import { Track as SpotifyTrack } from 'spotify-web-api-ts/types/types/SpotifyObjects';
 import axios from 'axios';
-import { StringDecoder } from 'string_decoder';
 
 const CALCULATE_NEARBY_PLAYERS_DELAY = 300;
 
@@ -842,7 +841,6 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     const response = await this._spotifyApi.playlists.createPlaylist('mknexus8', 'Covey Town', {
       public: false,
       collaborative: true,
-      description: desc,
     });
     const playlist = {
       description: response.description,

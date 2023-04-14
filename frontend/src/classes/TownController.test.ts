@@ -585,17 +585,17 @@ describe('TownController', () => {
       await expect(testController.getSpotifyTopSongs()).resolves.toEqual(mockTracks);
       expect(axiosSpy).toBeCalledTimes(1);
     });
-    // it('Creates a new playlist successfully', async () => {
-    //   jest.resetAllMocks();
-    //   const spotifySpy = jest.spyOn(spotifyApi.playlists, 'createPlaylist');
-    //   spotifySpy.mockResolvedValue(mockSpotifyPlaylist);
-    //   await expect(testController.createSpotifyPlaylist()).resolves.toEqual(mockPlaylist);
-    //   expect(spotifySpy).toBeCalledTimes(1);
-    //   expect(spotifySpy).toBeCalledWith('mknexus8', 'Covey Town', {
-    //     collaborative: true,
-    //     public: true,
-    //   });
-    // });
+    it('Creates a new playlist successfully', async () => {
+      jest.resetAllMocks();
+      const spotifySpy = jest.spyOn(spotifyApi.playlists, 'createPlaylist');
+      spotifySpy.mockResolvedValue(mockSpotifyPlaylist);
+      await expect(testController.createSpotifyPlaylist()).resolves.toEqual(mockPlaylist);
+      expect(spotifySpy).toBeCalledTimes(1);
+      expect(spotifySpy).toBeCalledWith('mknexus8', 'Covey Town', {
+        collaborative: true,
+        public: true,
+      });
+    });
     it('Can add tracks to a playlist', async () => {
       jest.resetAllMocks();
       const spotifySpy = jest.spyOn(spotifyApi.playlists, 'addItemsToPlaylist');
@@ -625,12 +625,12 @@ describe('TownController', () => {
       expect(axiosSpy).toBeCalledTimes(1);
       expect(spotifySpy1).toBeCalledTimes(1);
 
-      await expect(testController.createNewPlaylistWithTopSongs()).resolves.not.toThrowError();
+      await expect(testController.initializePlaylist()).resolves.not.toThrowError();
       expect(axiosSpy).toBeCalledTimes(2);
       expect(spotifySpy1).toBeCalledTimes(2);
       expect(spotifySpy1).toBeCalledWith('mknexus8', 'Covey Town', {
         collaborative: true,
-        public: false,
+        public: true,
       });
       expect(spotifySpy2).toBeCalledTimes(1);
       expect(spotifySpy2).toBeCalledWith(
