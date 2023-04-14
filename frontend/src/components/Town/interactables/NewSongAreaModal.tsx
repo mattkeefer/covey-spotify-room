@@ -13,46 +13,51 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useInteractable, useSongAreaController } from '../../../classes/TownController';
+import { useSongAreaController } from '../../../classes/TownController';
 import SongArea from './SongArea';
 import { Playlist, SongArea as SongAreaModel } from '../../../types/CoveyTownSocket';
 import useTownController from '../../../hooks/useTownController';
 
-export default function NewSongAreaModal(): JSX.Element {
+export default function NewSongAreaModal({
+  isOpen,
+  close,
+  songArea,
+}: {
+  isOpen: boolean;
+  close: () => void;
+  songArea: SongArea;
+}): JSX.Element {
   const coveyTownController = useTownController();
-  const newSongArea = useInteractable('songArea');
+  const songAreaController = useSongAreaController(songArea?.id);
 
   const [playlistName, setPlaylistName] = useState<string>('');
   const [playlistDescription, setPlaylistDescription] = useState<string>('');
   const [playlistContents, setPlaylistContents] = useState<Playlist | undefined>(undefined);
 
-  const isOpen = newSongArea !== undefined;
-
   useEffect(() => {
-    if (newSongArea) {
+    if (isOpen) {
       coveyTownController.pause();
     } else {
       coveyTownController.unPause();
     }
-  }, [coveyTownController, newSongArea]);
+  }, [coveyTownController, isOpen]);
 
   const closeModal = useCallback(() => {
-    if (newSongArea) {
-      coveyTownController.interactEnd(newSongArea);
-    }
-  }, [coveyTownController, newSongArea]);
+    coveyTownController.unPause();
+    close();
+  }, [coveyTownController, close]);
 
   const toast = useToast();
 
   const createPlaylist = useCallback(async () => {
     if (
-      (playlistName && newSongArea && playlistContents) ||
-      (playlistName && newSongArea && playlistContents && playlistDescription)
+      (playlistName && songAreaController && playlistContents) ||
+      (playlistName && songAreaController && playlistContents && playlistDescription)
     ) {
       console.log('playlistContents: ' + playlistContents);
       const songAreaToCreate: SongAreaModel = {
         comments: [],
-        id: newSongArea.name,
+        id: songAreaController.id,
         like_count: 0,
         songs_playlist: playlistContents,
       };
@@ -86,7 +91,7 @@ export default function NewSongAreaModal(): JSX.Element {
     playlistContents,
     setPlaylistName,
     coveyTownController,
-    newSongArea,
+    songAreaController,
     closeModal,
     toast,
   ]);
@@ -100,7 +105,7 @@ export default function NewSongAreaModal(): JSX.Element {
       }}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Create a playlist in {newSongArea?.id} </ModalHeader>
+        <ModalHeader>Create a playlist in {songAreaController?.id} </ModalHeader>
         <ModalCloseButton />
         <form
           onSubmit={ev => {
