@@ -24,10 +24,10 @@ import {
 } from '@chakra-ui/react';
 import { Town } from '../../generated/client';
 import useLoginController from '../../hooks/useLoginController';
+import TownController from '../../classes/TownController';
 import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
 import { SpotifyWebApi } from 'spotify-web-api-ts';
 import { PrivateUser } from 'spotify-web-api-ts/types/types/SpotifyObjects';
-import TownController from '../../classes/TownController';
 
 const SPOTIFY_CLIENT_ID = '6c3a5f706c5b443ca47c478c8836bd82';
 const SPOTIFY_REDIRECT_URI =
@@ -71,7 +71,6 @@ export default function TownSelection(): JSX.Element {
       'user-top-read',
       'playlist-read-collaborative',
       'playlist-modify-public',
-      'playlist-modify-private',
     ],
   });
 
@@ -108,8 +107,8 @@ export default function TownSelection(): JSX.Element {
     });
   }, [setCurrentPublicTowns, townsService]);
   useEffect(() => {
-    getSpotifyAccount();
     updateTownListings();
+    getSpotifyAccount();
     const timer = setInterval(updateTownListings, 2000);
     return () => {
       clearInterval(timer);
@@ -150,7 +149,7 @@ export default function TownSelection(): JSX.Element {
           spotifyApi,
         });
         await newController.connect();
-        await newController.initializePlaylist();
+        await newController.createNewPlaylistWithTopSongs();
         const videoToken = newController.providerVideoToken;
         assert(videoToken);
         await videoConnect(videoToken);

@@ -148,6 +148,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    */
   private _spotifyApi: SpotifyWebApi;
 
+  private _playlist?: Playlist;
+
   /**
    * The current list of players in the town. Adding or removing players might replace the array
    * with a new one; clients should take note not to retain stale references.
@@ -255,10 +257,6 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
   public get playlist() {
     return this._playlist;
-  }
-
-  private set _playlist(playlist: Playlist) {
-    this._playlist = playlist;
   }
 
   public get townIsPubliclyListed() {
@@ -800,14 +798,11 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    */
   public async getSpotifyTopSongs(): Promise<Track[]> {
     const accessToken = this._spotifyApi.getAccessToken();
-    const response = await axios.get(
-      'https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=5',
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+    const response = await axios.get('https://api.spotify.com/v1/me/top/tracks?limit=5', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       },
-    );
+    });
     const tracks: SpotifyTrack[] = response.data.items;
     const tracklist: Track[] = [];
     tracks.forEach(track =>
@@ -835,7 +830,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
-   * Create a new spotify playlist on the host spotify
+   * Create a new spotify playlist on the host spotify, sets this controller's playlist prop
    * @returns the spotify playlist that was created
    */
   public async createSpotifyPlaylist(): Promise<Playlist> {
@@ -876,11 +871,12 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   /**
    * Create a new spotify playlist and add the player's top 5 spotify tracks
    */
-  public async initializePlaylist(): Promise<void> {
+  public async createNewPlaylistWithTopSongs() {
     const playlist = await this.createSpotifyPlaylist();
     const tracks = await this.getSpotifyTopSongs();
     this.addTracksToPlaylist(tracks, playlist);
     this._playlist = playlist;
+    return playlist;
   }
 
   /**

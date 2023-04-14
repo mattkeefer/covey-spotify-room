@@ -4,9 +4,9 @@ import { useEffect } from 'react';
 import useTownController from '../../hooks/useTownController';
 import SocialSidebar from '../SocialSidebar/SocialSidebar';
 import NewConversationModal from './interactables/NewCoversationModal';
-import NewSongAreaModal from './interactables/NewSongAreaModal';
 import TownGameScene from './TownGameScene';
 import PosterViewerWrapper from './interactables/PosterViewer';
+import NewSongAreaModal from './interactables/NewSongAreaModal';
 
 export default function TownMap(): JSX.Element {
   const coveyTownController = useTownController();
