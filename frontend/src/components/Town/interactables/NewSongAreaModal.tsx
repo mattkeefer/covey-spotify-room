@@ -45,7 +45,9 @@ export default function NewSongAreaModal(): JSX.Element {
 
   const createPlaylist = useCallback(async () => {
     if ((playlistName && newSongArea) || (playlistName && newSongArea && playlistDescription)) {
-      const playlistContents: Playlist = await coveyTownController.createNewPlaylistWithTopSongs();
+      const playlistContents: Playlist = await coveyTownController.createNewPlaylistWithTopSongs(
+        playlistName,
+      );
       const songAreaToCreate: SongAreaModel = {
         comments: [],
         id: newSongArea.id,
