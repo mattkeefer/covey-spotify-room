@@ -837,9 +837,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    * Create a new spotify playlist on the host spotify
    * @returns the spotify playlist that was created
    */
-  public async createSpotifyPlaylist(name: string): Promise<Playlist> {
-    const user = (await this._spotifyApi.users.getMe()).id;
-    const response = await this._spotifyApi.playlists.createPlaylist(user, name, {
+  public async createSpotifyPlaylist(): Promise<Playlist> {
+    const response = await this._spotifyApi.playlists.createPlaylist('mknexus8', 'Covey Town', {
       public: false,
       collaborative: true,
     });
@@ -875,8 +874,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   /**
    * Create a new spotify playlist and add the player's top 5 spotify tracks
    */
-  public async createNewPlaylistWithTopSongs(name: string): Promise<Playlist> {
-    const playlist = await this.createSpotifyPlaylist(name);
+  public async createNewPlaylistWithTopSongs(): Promise<Playlist> {
+    const playlist = await this.createSpotifyPlaylist();
     const tracks = await this.getSpotifyTopSongs();
     this.addTracksToPlaylist(tracks, playlist);
     return playlist;
